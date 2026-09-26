@@ -1636,7 +1636,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BalloonBehaviour
   leftOfen: {fileID: 8760471851512003449}
-  rightOfen: {fileID: 0}
+  rightOfen: {fileID: 902938760826181622}
   leftLiftForce: 0
   rightLiftForce: 0
 --- !u!1 &7011326320669416018
@@ -2856,6 +2856,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f140db0309f888e4ba5e122603aa3f65, type: 3}
+--- !u!114 &902938760826181622 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4714681345622772356, guid: f140db0309f888e4ba5e122603aa3f65, type: 3}
+  m_PrefabInstance: {fileID: 5614312738428312946}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c226c2ef69dcb8f469ae8834fbc1538b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OfenManager
 --- !u!4 &2240943705607375090 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5977233133829379456, guid: f140db0309f888e4ba5e122603aa3f65, type: 3}
