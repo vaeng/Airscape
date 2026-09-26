@@ -72,10 +72,28 @@ public class PlayerInteraction : NetworkBehaviour
     {
         if (!Physics.Raycast(_movement.InteractRay, out var hit, _movement.InteractRange)) return;
 
+        var chest = hit.collider.GetComponentInParent<MoneyChest>();
+        if (chest != null)
+        {
+            chest.TakeCashRpc(OwnerClientId);
+            return;
+        }
+
         var item = hit.collider.GetComponent<PickupItem>();
         if (item == null) return;
 
         item.PickUpRpc(OwnerClientId);
+        _heldItem = item;
+        _heldRotation = Quaternion.identity;
+    }
+
+    /// <summary>
+    /// Called on the owning client when the server hands it an already-held item (e.g. from a MoneyChest).
+    /// </summary>
+    public void ReceiveHeldItem(PickupItem item)
+    {
+        if (_heldItem != null || item == null) return;
+
         _heldItem = item;
         _heldRotation = Quaternion.identity;
     }

@@ -9,7 +9,7 @@ public enum GameState { Lobby, Playing }
 /// </summary>
 public class GameManager : NetworkBehaviour
 {
-    private const int StartingCash = 1000000;
+    public const int StartingCash = 1000000;
     [SerializeField] private int currentCash = StartingCash;
     [SerializeField] private Rigidbody shipRigidbody;
     [SerializeField] private Transform balloonLeft, balloonRight;

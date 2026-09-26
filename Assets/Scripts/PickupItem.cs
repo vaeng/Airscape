@@ -130,9 +130,25 @@ public class PickupItem : NetworkBehaviour
     public void SetHeldRotationRpc(Quaternion rotation) => _heldRotation = rotation;
 
     [Rpc(SendTo.Server)]
-    public void PickUpRpc(ulong clientId)
+    public void PickUpRpc(ulong clientId) => ServerPickUp(clientId);
+
+    /// <summary>
+    /// World pose this item would have when held by the given player — safe to call on a prefab.
+    /// </summary>
+    public Pose GetHoldPose(Transform playerRoot)
     {
-        if (HeldBy.Value != ulong.MaxValue) return;
+        Transform camPoint = playerRoot.Find("CameraPoint");
+        if (camPoint == null) camPoint = playerRoot;
+
+        return new Pose(camPoint.position + camPoint.forward * _holdDistance, playerRoot.rotation);
+    }
+
+    /// <summary>
+    /// Server-only: attaches the item to the given client's player.
+    /// </summary>
+    public void ServerPickUp(ulong clientId)
+    {
+        if (!IsServer || HeldBy.Value != ulong.MaxValue) return;
 
         if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out var client)
             || client.PlayerObject == null) return;
