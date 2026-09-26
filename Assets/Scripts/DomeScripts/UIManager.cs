@@ -23,6 +23,6 @@ public class UIManager : MonoBehaviour
 
     private void UpdateCashText()
     {
-        cashTXT.text = "Current Cash: " + GameManager.Instance.CurrentCash.ToString();
+        cashTXT.text = "Current Cash: " + GameManager.Instance.CurrentCash.Value;
     }
 }
