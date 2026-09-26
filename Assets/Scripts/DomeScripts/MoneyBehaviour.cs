@@ -23,6 +23,7 @@ public class MoneyBehaviour : NetworkBehaviour
         }
         else
         {
+            ofenManager.PlayMoneyBurnSFX();
             ofenManager.AddEnergy(energyAmount);
             ofenManager.InsertMoney();
             Debug.Log($"Added {energyAmount} energy to the oven.");
