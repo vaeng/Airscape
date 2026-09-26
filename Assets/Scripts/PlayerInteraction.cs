@@ -211,6 +211,7 @@ public class PlayerInteraction : NetworkBehaviour
         _repairSpawner = spawner;
         _repairTarget = hit.collider;
         _repairStartTime = Time.time;
+        _repairSpawner.StartRepairSound(_repairTarget.transform);
     }
 
     /// <summary>
@@ -224,6 +225,9 @@ public class PlayerInteraction : NetworkBehaviour
 
     private void CancelRepair()
     {
+        if (_repairSpawner != null && _repairTarget != null)
+            _repairSpawner.StopRepairSound(_repairTarget.transform);
+
         _repairSpawner = null;
         _repairTarget = null;
     }

@@ -26,6 +26,8 @@ public class RepairSpawner : NetworkBehaviour
     private Transform[] _repairSpawnPoints = System.Array.Empty<Transform>();
     private GameObject[] _indicators = System.Array.Empty<GameObject>();
     private GameObject[] _smokes = System.Array.Empty<GameObject>();
+    private AudioSource[] _repairSounds = System.Array.Empty<AudioSource>();
+    private AudioSource _repairCompleteSound;
 
     // Server only. All spawned spawners share one limit and one timer, driven by the first one.
     private static readonly List<RepairSpawner> AllSpawners = new();
@@ -45,11 +47,14 @@ public class RepairSpawner : NetworkBehaviour
         _repairSpawnPoints = new Transform[count];
         _indicators = new GameObject[count];
         _smokes = new GameObject[count];
+        _repairSounds = new AudioSource[count];
+        _repairCompleteSound = repairSpawns.GetComponent<AudioSource>();
 
         for (int i = 0; i < count; i++)
         {
             var point = parent.GetChild(i);
             _repairSpawnPoints[i] = point;
+            _repairSounds[i] = point.GetComponent<AudioSource>();
 
             if (point.childCount > 0)
                 _indicators[i] = point.GetChild(0).gameObject;
@@ -120,6 +125,20 @@ public class RepairSpawner : NetworkBehaviour
         RepairRpc(IndexOf(target), heldItem.NetworkObject);
     }
 
+    /// <summary>Starts the repair sound of the spawn point that <paramref name="target"/> belongs to. Local only.</summary>
+    public void StartRepairSound(Transform target)
+    {
+        int index = IndexOf(target);
+        if (index >= 0 && _repairSounds[index] != null) _repairSounds[index].Play();
+    }
+
+    /// <summary>Stops the repair sound of the spawn point that <paramref name="target"/> belongs to. Local only.</summary>
+    public void StopRepairSound(Transform target)
+    {
+        int index = IndexOf(target);
+        if (index >= 0 && _repairSounds[index] != null) _repairSounds[index].Stop();
+    }
+
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void RepairRpc(int index, NetworkObjectReference moneyRef, RpcParams rpcParams = default)
     {
@@ -174,6 +193,16 @@ public class RepairSpawner : NetworkBehaviour
     private void OnActiveMaskChanged(ulong previous, ulong current)
     {
         UpdateVisuals(current);
+
+        // Points only get deactivated by a repair, so every cleared bit is a finished repair.
+        ulong repaired = previous & ~current;
+        if (repaired == 0) return;
+
+        for (int i = 0; i < _repairSounds.Length; i++)
+        {
+            if ((repaired & (1UL << i)) != 0 && _repairSounds[i] != null) _repairSounds[i].Stop();
+        }
+        if (_repairCompleteSound != null) _repairCompleteSound.Play();
     }
 
     private void UpdateVisuals(ulong mask)
