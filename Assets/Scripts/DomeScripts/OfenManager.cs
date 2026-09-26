@@ -19,7 +19,7 @@ public class OfenManager : MonoBehaviour
 
     public void AddEnergy(float amount)
     {
-        Debug.Log($"Adding {amount} energy to the oven.");
+        Debug.Log($"Really honestly adding {amount} energy to the oven.");
         CurrentEnergy += amount;
         CurrentEnergy = Mathf.Clamp(CurrentEnergy, 0f, maxEnergy);
     }
