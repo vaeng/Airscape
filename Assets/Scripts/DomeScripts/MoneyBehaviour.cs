@@ -5,6 +5,7 @@ public class MoneyBehaviour : NetworkBehaviour
 {
     [SerializeField] private int value = 1000;
     [SerializeField] private float energyAmount = 20f;
+    public int Value => value;
     private void OnCollisionEnter(Collision collision)
     {
         if (!IsServer ||

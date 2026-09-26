@@ -39,7 +39,6 @@ public class GameManager : NetworkBehaviour
             if (next == GameState.Playing) OnGameStarted?.Invoke();
         };
 
-        // Already Playing when this spawns (shouldn't happen, but guard anyway).
         if (CurrentState.Value == GameState.Playing) OnGameStarted?.Invoke();
     }
 
