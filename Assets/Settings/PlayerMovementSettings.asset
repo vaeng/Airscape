@@ -22,4 +22,4 @@ MonoBehaviour:
   fallGravityMult: 1.25
   slamForce: 28
   lookSensitivity: 0.1
-  interactRange: 20
+  interactRange: 10

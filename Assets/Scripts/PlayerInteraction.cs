@@ -129,7 +129,7 @@ public class PlayerInteraction : NetworkBehaviour
 
     private void TryPickUp()
     {
-        if (!Physics.Raycast(_movement.InteractRay, out var hit, _movement.InteractRange)) return;
+        if (!TryGetInteractHit(out var hit)) return;
 
         var chest = hit.collider.GetComponentInParent<MoneyChest>();
         if (chest != null)
@@ -138,16 +138,36 @@ public class PlayerInteraction : NetworkBehaviour
             return;
         }
 
-        var item = hit.collider.GetComponent<PickupItem>();
+        var item = hit.collider.GetComponentInParent<PickupItem>();
         if (item == null) return;
 
+        // _heldItem is set once the server confirms via PickupItem.HeldBy.
         item.PickUpRpc(OwnerClientId);
-        _heldItem = item;
-        _heldRotation = Quaternion.identity;
     }
 
     /// <summary>
-    /// Called on the owning client when the server hands it an already-held item (e.g. from a MoneyChest).
+    /// First non-trigger hit along the interact ray, ignoring the player's own colliders.
+    /// </summary>
+    private bool TryGetInteractHit(out RaycastHit result)
+    {
+        var hits = Physics.RaycastAll(_movement.InteractRay, _movement.InteractRange,
+            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (var h in hits)
+        {
+            if (h.collider.transform.IsChildOf(transform)) continue;
+
+            result = h;
+            return true;
+        }
+
+        result = default;
+        return false;
+    }
+
+    /// <summary>
+    /// Called on the owning client when the server assigns it an item (pickup or MoneyChest).
     /// </summary>
     public void ReceiveHeldItem(PickupItem item)
     {
@@ -155,6 +175,18 @@ public class PlayerInteraction : NetworkBehaviour
 
         _heldItem = item;
         _heldRotation = Quaternion.identity;
+    }
+
+    /// <summary>
+    /// Called on the owning client when the server released its item (e.g. stuck auto-drop).
+    /// </summary>
+    public void ReleaseHeldItem(PickupItem item)
+    {
+        if (_heldItem != item) return;
+
+        _heldItem = null;
+        _heldRotation = Quaternion.identity;
+        _isChargingThrow = false;
     }
 
     private void DropItem(float throwCharge01)

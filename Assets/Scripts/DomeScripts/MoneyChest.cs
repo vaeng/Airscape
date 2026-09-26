@@ -36,18 +36,7 @@ public class MoneyChest : NetworkBehaviour
 
         CurrentAmount.Value -= value;
 
+        // The client picks up the held state via PickupItem.HeldBy — no extra RPC needed.
         money.GetComponent<PickupItem>().ServerPickUp(clientId);
-        GiveToClientRpc(netObj, RpcTarget.Single(clientId, RpcTargetUse.Temp));
-    }
-
-    [Rpc(SendTo.SpecifiedInParams)]
-    private void GiveToClientRpc(NetworkObjectReference moneyRef, RpcParams rpcParams)
-    {
-        if (!moneyRef.TryGet(out NetworkObject moneyObj)) return;
-
-        NetworkObject player = NetworkManager.Singleton.LocalClient?.PlayerObject;
-        if (player == null) return;
-
-        player.GetComponent<PlayerInteraction>()?.ReceiveHeldItem(moneyObj.GetComponent<PickupItem>());
     }
 }

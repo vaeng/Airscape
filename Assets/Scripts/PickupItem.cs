@@ -84,6 +84,14 @@ public class PickupItem : NetworkBehaviour
         _rb.isKinematic = held;
         _rb.interpolation = held ? RigidbodyInterpolation.None
                                  : RigidbodyInterpolation.Interpolate;
+
+        // Keep the local player's held-item state in sync with the server's authority.
+        var local = PlayerInteraction.Local;
+        if (local == null) return;
+
+        ulong me = NetworkManager.Singleton.LocalClientId;
+        if (current == me) local.ReceiveHeldItem(this);
+        else if (previous == me) local.ReleaseHeldItem(this);
     }
 
     private void LateUpdate()
@@ -103,7 +111,8 @@ public class PickupItem : NetworkBehaviour
 
         // RaycastAll so we can skip hits on the holder's own body before checking geometry.
         float rawTarget = _holdDistance;
-        var hits = Physics.RaycastAll(origin, forward, _holdDistance);
+        var hits = Physics.RaycastAll(origin, forward, _holdDistance,
+            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
         System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
         foreach (var h in hits)
