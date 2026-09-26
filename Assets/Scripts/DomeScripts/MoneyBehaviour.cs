@@ -9,7 +9,6 @@ public class MoneyBehaviour : NetworkBehaviour
     public int Value => value;
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log($"Money collided with {collision.gameObject.name}");
 
         if (!IsServer)
         {
