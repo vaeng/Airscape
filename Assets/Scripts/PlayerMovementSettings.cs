@@ -11,7 +11,7 @@ public class PlayerMovementSettings : ScriptableObject
     public float sprintSpeed = 20f;
 
     [Header("Jump")]
-    public float jumpForce = 30f;
+    public float jumpForce = 20f;
     public float coyoteTime = 0.3f;
     public float jumpBufferTime = 0.3f;
 
