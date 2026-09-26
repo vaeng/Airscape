@@ -14428,7 +14428,7 @@ MonoBehaviour:
     PlayerPrefab: {fileID: 4688565802699289721, guid: d21cdc166e6890841ad3494780d9d9aa, type: 3}
     Prefabs:
       NetworkPrefabsLists:
-      - {fileID: 11400000, guid: 5dd0674a934303a49ba86f0fc8f992d8, type: 2}
+      - {fileID: 11400000, guid: bf94dd35f339a874b9f18c8bb20597ff, type: 2}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
@@ -91219,6 +91219,10 @@ PrefabInstance:
     - target: {fileID: 2516188084356076510, guid: 5bf1c161ac6d24f4b9f4cfe48e0c039c, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 3940903850
+      objectReference: {fileID: 0}
+    - target: {fileID: 3926165558240206858, guid: 5bf1c161ac6d24f4b9f4cfe48e0c039c, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3774630109
       objectReference: {fileID: 0}
     - target: {fileID: 4630109178907889129, guid: 5bf1c161ac6d24f4b9f4cfe48e0c039c, type: 3}
       propertyPath: m_LocalPosition.x
