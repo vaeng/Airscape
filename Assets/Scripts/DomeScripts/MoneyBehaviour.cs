@@ -23,6 +23,7 @@ public class MoneyBehaviour : NetworkBehaviour
         }
 
         ofenManager.AddEnergy(energyAmount);
+        ofenManager.InsertMoney();
         Debug.Log($"Added {energyAmount} energy to the oven.");
 
         GameManager.Instance.LoseCashRPC(value);
