@@ -1,15 +1,15 @@
 using UnityEngine;
+using Unity.Netcode;
 
-public class MoneyBehaviour : MonoBehaviour
+public class MoneyBehaviour : NetworkBehaviour
 {
     [SerializeField] private int value = 1000;
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.gameObject.CompareTag("Ofen"))
-        {
-            GameManager.Instance.LoseCashRPC(value);
-            EventManager.CashAmountChanged();
-            Destroy(gameObject);
-        }
+        if (!IsServer || !collision.gameObject.CompareTag("Ofen")) return;
+
+        GameManager.Instance.LoseCashRPC(value);
+        EventManager.CashAmountChanged();
+        NetworkObject.Despawn();
     }
 }

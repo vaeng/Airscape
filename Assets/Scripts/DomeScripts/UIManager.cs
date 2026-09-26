@@ -5,18 +5,18 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] private TMP_Text cashTXT;
 
-    private void OnEnable()
+    private void Start()
     {
-        EventManager.OnCashAmountChanged += UpdateCashText;
+        GameManager.Instance.CurrentCash.OnValueChanged += OnCashChanged;
+        UpdateCashText();
     }
 
-    //Unity will das unsubscriben in der OnDestroy idk
     private void OnDestroy()
     {
-        EventManager.OnCashAmountChanged -= UpdateCashText;
+        GameManager.Instance.CurrentCash.OnValueChanged -= OnCashChanged;
     }
 
-    private void Start()
+    private void OnCashChanged(int previousValue, int newValue)
     {
         UpdateCashText();
     }
