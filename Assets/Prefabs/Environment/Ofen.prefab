@@ -155,7 +155,7 @@ Transform:
   m_GameObject: {fileID: 7175740598655046006}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.061, y: 7.7, z: 0.823}
+  m_LocalPosition: {x: 0.061, y: 10.48, z: 0.044}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -307,7 +307,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4159211684
+  GlobalObjectIdHash: 2850545868
   InScenePlacedSourceGlobalObjectIdHash: 2850545868
   DeferredDespawnTick: 0
   Ownership: 1
@@ -342,11 +342,13 @@ MonoBehaviour:
   efficiency: 1
   moneyPerEfficiencyLevel: 1
   secondsPerEfficiencyLevel: 20
+  extraDecayPerRepair: 1
   firePosition: {fileID: 8948781903541807253}
   firePositionTop: {fileID: 308804700821155645}
   fireVFXSmall: {fileID: 8258060997482479881, guid: bdcbe46c1bebc4351af892f94831a7ff, type: 3}
   fireVFXMedium: {fileID: 4642530386150613244, guid: f899d7a54d82544b79046233507fe043, type: 3}
   fireVFXLarge: {fileID: 2497336175142143340, guid: db01f7fc5fbe6468ba30cf2e2dd98b7f, type: 3}
+  repairSpawner: {fileID: 0}
   moneyBurnSFX: {fileID: 1416209633438891175}
 --- !u!65 &7609157964167229059
 BoxCollider:
