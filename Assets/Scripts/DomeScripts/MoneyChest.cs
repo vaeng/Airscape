@@ -32,11 +32,13 @@ public class MoneyChest : NetworkBehaviour
         Pose holdPose = moneyPrefab.GetComponent<PickupItem>().GetHoldPose(client.PlayerObject.transform);
         GameObject money = Instantiate(moneyPrefab, holdPose.position, holdPose.rotation);
         NetworkObject netObj = money.GetComponent<NetworkObject>();
+
+        // Set HeldBy before Spawn(): changing a NetworkVariable in the same tick right after
+        // Spawn() (before all clients are registered as observers) corrupts the spawn payload
+        // and throws a NullReferenceException in NetworkObject.Deserialize on other clients.
+        money.GetComponent<PickupItem>().ServerPickUp(clientId);
         netObj.Spawn();
 
         CurrentAmount.Value -= value;
-
-        // The client picks up the held state via PickupItem.HeldBy — no extra RPC needed.
-        money.GetComponent<PickupItem>().ServerPickUp(clientId);
     }
 }
