@@ -464,6 +464,7 @@ GameObject:
   - component: {fileID: 1136474072527985140}
   - component: {fileID: 5186332602126272195}
   - component: {fileID: 3222025873534101845}
+  - component: {fileID: 791683139133222521}
   m_Layer: 8
   m_Name: Multiplayer Controller
   m_TagString: Untagged
@@ -875,6 +876,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d24749af3c72af645b4653f7ec4bc380, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AffectedByWindTag
+--- !u!114 &791683139133222521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4688565802699289721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89606c31334d2a549be6057a6a542eda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DisableOwnMesh
+  ShowTopMostFoldoutHeaderGroup: 1
+  _meshRenderer: {fileID: 2284524881055289908}
 --- !u!1 &5249471087407706752
 GameObject:
   m_ObjectHideFlags: 0
@@ -1217,5 +1232,10 @@ PrefabInstance:
 --- !u!4 &1484678811149575644 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2579337209894926386, guid: f67384fbe58cd3147899b404caff2f41, type: 3}
+  m_PrefabInstance: {fileID: 3985973768033230318}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &2284524881055289908 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2946837687403991002, guid: f67384fbe58cd3147899b404caff2f41, type: 3}
   m_PrefabInstance: {fileID: 3985973768033230318}
   m_PrefabAsset: {fileID: 0}
