@@ -463,6 +463,7 @@ GameObject:
   - component: {fileID: 2777595174383168464}
   - component: {fileID: 1136474072527985140}
   - component: {fileID: 5186332602126272195}
+  - component: {fileID: 3222025873534101845}
   m_Layer: 8
   m_Name: Multiplayer Controller
   m_TagString: Untagged
@@ -859,6 +860,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerNetworkBridge
   ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &3222025873534101845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4688565802699289721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d24749af3c72af645b4653f7ec4bc380, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AffectedByWindTag
 --- !u!1 &5249471087407706752
 GameObject:
   m_ObjectHideFlags: 0
