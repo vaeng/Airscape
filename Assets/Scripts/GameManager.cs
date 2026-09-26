@@ -11,6 +11,9 @@ public class GameManager : NetworkBehaviour
 {
     private const int StartingCash = 1000000;
     [SerializeField] private int currentCash = StartingCash;
+    [SerializeField] private Rigidbody shipRigidbody;
+    [SerializeField] private Transform balloonLeft, balloonRight;
+
     public NetworkVariable<int> CurrentCash = new(
         StartingCash,
         NetworkVariableReadPermission.Everyone,
@@ -56,5 +59,16 @@ public class GameManager : NetworkBehaviour
         CurrentCash.Value = Mathf.Max(0, CurrentCash.Value - amount);
     }
 
+    [Rpc(SendTo.Server)]
+    public void HandleShipPhysicsRPC(float leftBallLift, float rightBallLift, 
+        Vector3 position = default, Vector3 linearVelocity = default, Quaternion rotation = default, Vector3 angularVelocity = default)
+    {
+        if (!IsServer) return;
+
+        Debug.Log($"Lift RPC: {leftBallLift}, {rightBallLift}");
+        shipRigidbody.AddForceAtPosition(Vector3.up * leftBallLift, balloonLeft.position, ForceMode.Force);
+        shipRigidbody.AddForceAtPosition(Vector3.up * rightBallLift, balloonRight.position, ForceMode.Force);
+
+    }
     #endregion
 }
