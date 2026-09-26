@@ -2799,7 +2799,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4714681345622772356, guid: f140db0309f888e4ba5e122603aa3f65, type: 3}
       propertyPath: efficiency
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4714681345622772356, guid: f140db0309f888e4ba5e122603aa3f65, type: 3}
       propertyPath: energyConsumptionRate
@@ -2954,7 +2954,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4714681345622772356, guid: f140db0309f888e4ba5e122603aa3f65, type: 3}
       propertyPath: efficiency
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4714681345622772356, guid: f140db0309f888e4ba5e122603aa3f65, type: 3}
       propertyPath: energyConsumptionRate

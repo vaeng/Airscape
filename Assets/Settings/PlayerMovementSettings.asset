@@ -11,15 +11,15 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4f09f334bc87f024faf9b3b17e5b9c9e, type: 3}
   m_Name: PlayerMovementSettings
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   walkSpeed: 10
   sprintSpeed: 20
-  jumpForce: 15
-  coyoteTime: 0.12
-  jumpBufferTime: 0.15
-  airSpeedMax: 27
+  jumpForce: 25
+  coyoteTime: 0.4
+  jumpBufferTime: 0.4
+  airSpeedMax: 20
   gravityScale: 2.99
   fallGravityMult: 1.25
   slamForce: 28
   lookSensitivity: 0.1
-  interactRange: 15
+  interactRange: 20
