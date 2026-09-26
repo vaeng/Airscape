@@ -22,6 +22,8 @@ public class OfenManager : NetworkBehaviour
     [SerializeField, Min(1)] private int moneyPerEfficiencyLevel = 1;
     [Tooltip("Seconds until the efficiency drops by one level. Resets whenever the level changes.")]
     [SerializeField, Min(0.1f)] private float secondsPerEfficiencyLevel = 20f;
+    [Tooltip("Extra decay speed per active repair point. 1 = twice as fast with one active repair point.")]
+    [SerializeField, Min(0f)] private float extraDecayPerRepair = 1f;
 
     [Header("References")]
     [SerializeField] private Transform firePosition;
@@ -29,6 +31,7 @@ public class OfenManager : NetworkBehaviour
     [SerializeField] private GameObject fireVFXSmall;
     [SerializeField] private GameObject fireVFXMedium;
     [SerializeField] private GameObject fireVFXLarge;
+    [SerializeField] private RepairSpawner repairSpawner;
 
     [Header("Sounds")]
     [SerializeField] private AudioSource moneyBurnSFX;
@@ -64,7 +67,8 @@ public class OfenManager : NetworkBehaviour
     {
         if (IsSpawned && IsServer && networkEfficiency.Value > MinEfficiency)
         {
-            decayTimer += Time.deltaTime;
+            int activeRepairs = repairSpawner != null ? repairSpawner.ActiveCount : 0;
+            decayTimer += Time.deltaTime * (1f + activeRepairs * extraDecayPerRepair);
             if (decayTimer >= secondsPerEfficiencyLevel)
             {
                 SetEfficiency(networkEfficiency.Value - 1);

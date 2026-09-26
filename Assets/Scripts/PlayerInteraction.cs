@@ -10,7 +10,7 @@ public class PlayerInteraction : NetworkBehaviour
     [SerializeField]
     private float _rotateSensitivity = 0.15f;
 
-    // Holding Interact longer than this while carrying an item turns the drop into a throw.
+    // Holding Attack longer than this while carrying an item turns the drop into a throw.
     [SerializeField]
     private float _throwChargeDelay = 0.2f;
 
@@ -24,15 +24,41 @@ public class PlayerInteraction : NetworkBehaviour
 
     // Per-player input actions — MPPM-safe.
     private InputAction _interactAction;
+    private InputAction _attackAction;
     private InputAction _rotateAction;
 
     private bool _isChargingThrow;
     private float _chargeStartTime;
 
+    // Repair in progress: the targeted repair point collider and when holding Interact started.
+    private RepairSpawner _repairSpawner;
+    private Collider _repairTarget;
+    private float _repairStartTime;
+
     public bool IsRotatingItem { get; private set; }
 
+    public bool IsRepairing => _repairSpawner != null;
+
     /// <summary>
-    /// Current throw charge (0..1) while Interact is held with an item — usable for HUD feedback.
+    /// Repair progress (0..1) while Interact is held on a repair point.
+    /// </summary>
+    public float RepairProgress01 => IsRepairing
+        ? Mathf.Clamp01((Time.time - _repairStartTime) / Mathf.Max(_repairSpawner.RepairDuration, 0.01f))
+        : 0f;
+
+    /// <summary>
+    /// Whether the HUD charge bar should be shown (throw charge or repair progress).
+    /// </summary>
+    public bool IsChargeBarVisible => IsChargingThrow || IsRepairing;
+
+    /// <summary>
+    /// Fill of the HUD charge bar (0..1).
+    /// </summary>
+    public float ChargeBar01 => IsRepairing ? RepairProgress01
+        : MaxThrowForce > 0f ? CurrentThrowForce / MaxThrowForce : 0f;
+
+    /// <summary>
+    /// Current throw charge (0..1) while Attack is held with an item — usable for HUD feedback.
     /// </summary>
     public float ThrowCharge01 => _isChargingThrow ? ComputeCharge() : 0f;
 
@@ -71,6 +97,7 @@ public class PlayerInteraction : NetworkBehaviour
 
         var playerInput = GetComponent<PlayerInput>();
         _interactAction = playerInput.actions["Interact"];
+        _attackAction = playerInput.actions["Attack"];
         _rotateAction.Enable();
     }
 
@@ -86,33 +113,59 @@ public class PlayerInteraction : NetworkBehaviour
 
     private void Update()
     {
-        HandlePickup();
+        HandleInteract();
+        HandleThrow();
         HandleItemRotation();
     }
 
-    private void HandlePickup()
+    /// <summary>
+    /// Interact: picks up items with empty hands; held on a repair point while carrying money, it repairs it.
+    /// </summary>
+    private void HandleInteract()
     {
         if (_interactAction == null) return;
+
+        if (_interactAction.WasPressedThisFrame())
+        {
+            if (_heldItem == null) TryPickUp();
+            else if (!_isChargingThrow) TryStartRepair();
+        }
+
+        if (!IsRepairing) return;
+
+        if (!_interactAction.IsPressed() || !IsStillTargetingRepair())
+        {
+            CancelRepair();
+            return;
+        }
+
+        if (RepairProgress01 >= 1f)
+        {
+            // Money is consumed by the server; _heldItem turns null once it is despawned.
+            _repairSpawner.Repair(_repairTarget.transform, _heldItem);
+            CancelRepair();
+        }
+    }
+
+    /// <summary>
+    /// Attack: press to start charging, release to drop (short press) or throw (held).
+    /// </summary>
+    private void HandleThrow()
+    {
+        if (_attackAction == null) return;
 
         // Item was taken away while charging — cancel the throw.
         if (_isChargingThrow && _heldItem == null)
             _isChargingThrow = false;
 
-        if (_interactAction.WasPressedThisFrame())
+        if (_attackAction.WasPressedThisFrame() && _heldItem != null && !IsRepairing)
         {
-            if (_heldItem != null)
-            {
-                // Start charging; the actual drop/throw happens on release.
-                _isChargingThrow = true;
-                _chargeStartTime = Time.time;
-            }
-            else
-            {
-                TryPickUp();
-            }
+            // Start charging; the actual drop/throw happens on release.
+            _isChargingThrow = true;
+            _chargeStartTime = Time.time;
         }
 
-        if (_isChargingThrow && _interactAction.WasReleasedThisFrame())
+        if (_isChargingThrow && _attackAction.WasReleasedThisFrame())
         {
             float charge = ComputeCharge();
             _isChargingThrow = false;
@@ -143,6 +196,36 @@ public class PlayerInteraction : NetworkBehaviour
 
         // _heldItem is set once the server confirms via PickupItem.HeldBy.
         item.PickUpRpc(OwnerClientId);
+    }
+
+    /// <summary>
+    /// Starts repairing if the player carries money and looks at an active repair point.
+    /// </summary>
+    private void TryStartRepair()
+    {
+        if (!TryGetInteractHit(out var hit)) return;
+
+        var spawner = hit.collider.GetComponentInParent<RepairSpawner>();
+        if (spawner == null || !spawner.CanRepair(hit.collider.transform, _heldItem)) return;
+
+        _repairSpawner = spawner;
+        _repairTarget = hit.collider;
+        _repairStartTime = Time.time;
+    }
+
+    /// <summary>
+    /// True while the player still carries the money and looks at the same, still active repair point.
+    /// </summary>
+    private bool IsStillTargetingRepair()
+    {
+        if (_repairTarget == null || !TryGetInteractHit(out var hit)) return false;
+        return hit.collider == _repairTarget && _repairSpawner.CanRepair(_repairTarget.transform, _heldItem);
+    }
+
+    private void CancelRepair()
+    {
+        _repairSpawner = null;
+        _repairTarget = null;
     }
 
     /// <summary>
