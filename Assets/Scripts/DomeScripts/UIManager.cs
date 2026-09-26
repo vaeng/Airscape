@@ -42,15 +42,16 @@ public class UIManager : MonoBehaviour
     private void UpdateThrowChargeSlider()
     {
         var interaction = PlayerInteraction.Local;
-        bool charging = interaction != null && interaction.IsChargingThrow;
+        bool visible = interaction != null && interaction.IsChargeBarVisible;
 
-        if (throwChargeSlider.gameObject.activeSelf != charging)
-            throwChargeSlider.gameObject.SetActive(charging);
+        if (throwChargeSlider.gameObject.activeSelf != visible)
+            throwChargeSlider.gameObject.SetActive(visible);
 
-        if (!charging) return;
+        if (!visible) return;
 
-        throwChargeSlider.maxValue = interaction.MaxThrowForce;
-        throwChargeSlider.value = interaction.CurrentThrowForce;
+        // Shared between throw charge and repair progress.
+        throwChargeSlider.maxValue = 1f;
+        throwChargeSlider.value = interaction.ChargeBar01;
     }
 
     private void OnDestroy()
