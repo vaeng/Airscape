@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 3373912634716443392}
   - component: {fileID: 420995162343024762}
   - component: {fileID: 2677513090292533646}
+  - component: {fileID: -8267045395747200351}
   m_Layer: 0
   m_Name: Money
   m_TagString: Untagged
@@ -33,7 +34,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9162, y: 0.9162, z: 0.9162}
+  m_LocalScale: {x: 0.9162, y: 0.4290765, z: 0.6422957}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -92,7 +93,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 690f5987adc2824499aec874b7c2517d, type: 2}
+  - {fileID: 2100000, guid: 8551d2a7803eef84ca1158341376f099, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -155,7 +156,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3914243283
+  GlobalObjectIdHash: 2371644968
   InScenePlacedSourceGlobalObjectIdHash: 3342089112
   DeferredDespawnTick: 0
   Ownership: 1
@@ -235,3 +236,16 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 18446744073709551615
+--- !u!114 &-8267045395747200351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3549143228078808580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 101194963752b7146861b804164d6693, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MoneyBehaviour
+  value: 1000

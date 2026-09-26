@@ -9,6 +9,10 @@ public enum GameState { Lobby, Playing }
 /// </summary>
 public class GameManager : NetworkBehaviour
 {
+    private const int StartingCash = 1000000;
+    [SerializeField] private int currentCash = StartingCash;
+    public int CurrentCash => currentCash;
+
     public static GameManager Instance { get; private set; }
 
     // C# event — safe to subscribe before the network starts (LobbyController, FPSController).
@@ -21,6 +25,7 @@ public class GameManager : NetworkBehaviour
 
     private void Awake() => Instance = this;
 
+    #region Network Callbacks and RPCs
     public override void OnNetworkSpawn()
     {
         CurrentState.OnValueChanged += (_, next) =>
@@ -38,4 +43,16 @@ public class GameManager : NetworkBehaviour
         if (!IsServer) return;
         CurrentState.Value = GameState.Playing;
     }
+    #endregion
+
+    #region Public Methods
+
+    [Rpc(SendTo.Server)]
+    public void LoseCashRPC(int amount)
+    {
+        currentCash -= amount;
+        if (currentCash < 0) currentCash = 0;
+    }
+
+    #endregion
 }
