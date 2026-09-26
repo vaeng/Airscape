@@ -65,7 +65,7 @@ public class GameManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        Debug.Log($"Lift RPC: {leftBallLift}, {rightBallLift}");
+        // Debug.Log($"Lift RPC: {leftBallLift}, {rightBallLift}");
         shipRigidbody.AddForceAtPosition(Vector3.up * leftBallLift, balloonLeft.position, ForceMode.Force);
         shipRigidbody.AddForceAtPosition(Vector3.up * rightBallLift, balloonRight.position, ForceMode.Force);
 
