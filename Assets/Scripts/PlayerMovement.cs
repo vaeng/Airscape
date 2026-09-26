@@ -33,6 +33,11 @@ public class PlayerMovement : MonoBehaviour
     private float _jumpBufferTimer;
     private bool _slamming;
 
+    /// <summary>
+    /// The player's own camera once it has taken over from the scene camera, otherwise null.
+    /// </summary>
+    public Camera ActiveCamera => _isPlaying ? _playerCamera : null;
+
     public Ray InteractRay { get; private set; }
     public float InteractRange => _settings != null ? _settings.interactRange : 5f;
 

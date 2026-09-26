@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c226c2ef69dcb8f469ae8834fbc1538b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OfenManager
-  ShowTopMostFoldoutHeaderGroup: 1
+  currentEfficiency: 1
   energyConsumptionRate: 5
   maxEnergy: 100
   efficiency: 1

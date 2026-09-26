@@ -9,6 +9,8 @@ public class BalloonBehaviour : MonoBehaviour
     
     private void Update()
     {
+        // RPCs can only be sent once the NetworkManager is running and the GameManager is spawned.
+        if (GameManager.Instance == null || !GameManager.Instance.IsSpawned) return;
         if (GameManager.Instance.CurrentState.Value != GameState.Playing) return;
 
         leftLiftForce = leftOfen != null ? leftOfen.GetEnergy() : 0f;

@@ -10,6 +10,14 @@ public class PlayerInteraction : NetworkBehaviour
     [SerializeField]
     private float _rotateSensitivity = 0.15f;
 
+    // Holding Interact longer than this while carrying an item turns the drop into a throw.
+    [SerializeField]
+    private float _throwChargeDelay = 0.2f;
+
+    // Time from the charge delay until full throw strength is reached.
+    [SerializeField]
+    private float _throwChargeTime = 1f;
+
     private PlayerMovement _movement;
     private PickupItem _heldItem;
     private Quaternion _heldRotation = Quaternion.identity;
@@ -18,7 +26,29 @@ public class PlayerInteraction : NetworkBehaviour
     private InputAction _interactAction;
     private InputAction _rotateAction;
 
+    private bool _isChargingThrow;
+    private float _chargeStartTime;
+
     public bool IsRotatingItem { get; private set; }
+
+    /// <summary>
+    /// Current throw charge (0..1) while Interact is held with an item — usable for HUD feedback.
+    /// </summary>
+    public float ThrowCharge01 => _isChargingThrow ? ComputeCharge() : 0f;
+
+    public bool IsChargingThrow => _isChargingThrow && _heldItem != null;
+
+    /// <summary>
+    /// Impulse the held item would get if released now.
+    /// </summary>
+    public float CurrentThrowForce => IsChargingThrow ? _heldItem.GetThrowForce(ComputeCharge()) : 0f;
+
+    public float MaxThrowForce => _heldItem != null ? _heldItem.MaxThrowForce : 0f;
+
+    /// <summary>
+    /// The locally owned player's interaction component, or null before spawn.
+    /// </summary>
+    public static PlayerInteraction Local { get; private set; }
 
     private void Awake()
     {
@@ -37,6 +67,8 @@ public class PlayerInteraction : NetworkBehaviour
             return;
         }
 
+        Local = this;
+
         var playerInput = GetComponent<PlayerInput>();
         _interactAction = playerInput.actions["Interact"];
         _rotateAction.Enable();
@@ -48,6 +80,7 @@ public class PlayerInteraction : NetworkBehaviour
         {
             _rotateAction?.Disable();
         }
+        if (Local == this) Local = null;
         _rotateAction?.Dispose();
     }
 
@@ -60,12 +93,38 @@ public class PlayerInteraction : NetworkBehaviour
     private void HandlePickup()
     {
         if (_interactAction == null) return;
-        if (!_interactAction.WasPressedThisFrame()) return;
 
-        if (_heldItem != null)
-            DropItem();
-        else
-            TryPickUp();
+        // Item was taken away while charging — cancel the throw.
+        if (_isChargingThrow && _heldItem == null)
+            _isChargingThrow = false;
+
+        if (_interactAction.WasPressedThisFrame())
+        {
+            if (_heldItem != null)
+            {
+                // Start charging; the actual drop/throw happens on release.
+                _isChargingThrow = true;
+                _chargeStartTime = Time.time;
+            }
+            else
+            {
+                TryPickUp();
+            }
+        }
+
+        if (_isChargingThrow && _interactAction.WasReleasedThisFrame())
+        {
+            float charge = ComputeCharge();
+            _isChargingThrow = false;
+            DropItem(charge);
+        }
+    }
+
+    private float ComputeCharge()
+    {
+        float held = Time.time - _chargeStartTime - _throwChargeDelay;
+        if (held <= 0f) return 0f;
+        return _throwChargeTime <= 0f ? 1f : Mathf.Clamp01(held / _throwChargeTime);
     }
 
     private void TryPickUp()
@@ -98,9 +157,9 @@ public class PlayerInteraction : NetworkBehaviour
         _heldRotation = Quaternion.identity;
     }
 
-    private void DropItem()
+    private void DropItem(float throwCharge01)
     {
-        _heldItem.DropRpc();
+        _heldItem.DropRpc(throwCharge01);
         _heldItem = null;
         _heldRotation = Quaternion.identity;
     }

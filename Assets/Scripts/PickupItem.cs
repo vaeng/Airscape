@@ -17,6 +17,22 @@ public class PickupItem : NetworkBehaviour
     [SerializeField]
     private float _stuckDropTime = 0.5f;
 
+    // Impulse applied on a plain drop (charge = 0).
+    [SerializeField]
+    private float _dropForce = 4f;
+
+    // Impulse applied on a fully charged throw (charge = 1).
+    [SerializeField]
+    private float _maxThrowForce = 25f;
+
+    public float MaxThrowForce => _maxThrowForce;
+
+    /// <summary>
+    /// Impulse applied for the given throw charge (0 = plain drop, 1 = full throw).
+    /// </summary>
+    public float GetThrowForce(float throwCharge01) =>
+        Mathf.Lerp(_dropForce, _maxThrowForce, Mathf.Clamp01(throwCharge01));
+
     public NetworkVariable<ulong> HeldBy = new NetworkVariable<ulong>(
         ulong.MaxValue,
         NetworkVariableReadPermission.Everyone,
@@ -161,8 +177,11 @@ public class PickupItem : NetworkBehaviour
         HeldBy.Value = clientId;
     }
 
+    /// <summary>
+    /// Releases the item. throwCharge01 = 0 is a plain drop, 1 is a full-strength throw.
+    /// </summary>
     [Rpc(SendTo.Server)]
-    public void DropRpc()
+    public void DropRpc(float throwCharge01)
     {
         if (HeldBy.Value == ulong.MaxValue) return;
 
@@ -173,6 +192,6 @@ public class PickupItem : NetworkBehaviour
         _heldRotation = Quaternion.identity;
         _stuckTimer = 0f;
         HeldBy.Value = ulong.MaxValue;
-        _rb.AddForce(throwDir * 4f, ForceMode.Impulse);
+        _rb.AddForce(throwDir * GetThrowForce(throwCharge01), ForceMode.Impulse);
     }
 }
