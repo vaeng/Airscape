@@ -26,10 +26,20 @@ public class MoneyBehaviour : NetworkBehaviour
             ofenManager.AddEnergy(energyAmount);
             ofenManager.InsertMoney();
             Debug.Log($"Added {energyAmount} energy to the oven.");
-            GameManager.Instance.LoseCashRPC(value);
-            EventManager.CashAmountChanged();
+            ReduceCashAmount();
         }
 
         NetworkObject.Despawn();
+    }
+
+    public void ReduceCashAmount()
+    {
+        if (!IsServer)
+        {
+            return;
+        }
+
+        GameManager.Instance.LoseCashRPC(value);
+        EventManager.CashAmountChanged();
     }
 }

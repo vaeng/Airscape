@@ -21,5 +21,11 @@ public class KillZone : NetworkBehaviour
             }
         }
 
+        var money = other.GetComponent<MoneyBehaviour>();
+        if (money != null) {
+            money.ReduceCashAmount();
+            money.NetworkObject.Despawn();
+        }
+
     }
 }
