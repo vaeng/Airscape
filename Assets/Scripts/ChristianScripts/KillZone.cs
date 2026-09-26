@@ -23,9 +23,9 @@ public class KillZone : NetworkBehaviour
 
         var money = other.GetComponent<MoneyBehaviour>();
         if (money != null) {
-            money.ReduceCashAmount();
-            if(money.NetworkObject != null)
+            if(money.NetworkObject.IsSpawned)
             {
+                money.ReduceCashAmount();
                 money.NetworkObject.Despawn(true);
             }
         }
