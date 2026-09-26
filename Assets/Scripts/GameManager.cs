@@ -11,7 +11,10 @@ public class GameManager : NetworkBehaviour
 {
     private const int StartingCash = 1000000;
     [SerializeField] private int currentCash = StartingCash;
-    public int CurrentCash => currentCash;
+    public NetworkVariable<int> CurrentCash = new(
+        StartingCash,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
 
     public static GameManager Instance { get; private set; }
 
@@ -50,8 +53,7 @@ public class GameManager : NetworkBehaviour
     [Rpc(SendTo.Server)]
     public void LoseCashRPC(int amount)
     {
-        currentCash -= amount;
-        if (currentCash < 0) currentCash = 0;
+        CurrentCash.Value = Mathf.Max(0, CurrentCash.Value - amount);
     }
 
     #endregion
