@@ -91746,25 +91746,13 @@ PrefabInstance:
       propertyPath: GlobalObjectIdHash
       value: 4053214853
       objectReference: {fileID: 0}
-    - target: {fileID: 408959381410521059, guid: 9e7935f60c1f3ad48bbf14a57b22d942, type: 3}
-      propertyPath: InScenePlacedSourceGlobalObjectIdHash
-      value: 2803383255
-      objectReference: {fileID: 0}
     - target: {fileID: 2924691043218264351, guid: 9e7935f60c1f3ad48bbf14a57b22d942, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 1953974278
       objectReference: {fileID: 0}
-    - target: {fileID: 2924691043218264351, guid: 9e7935f60c1f3ad48bbf14a57b22d942, type: 3}
-      propertyPath: InScenePlacedSourceGlobalObjectIdHash
-      value: 2803383255
-      objectReference: {fileID: 0}
     - target: {fileID: 3417560930319530251, guid: 9e7935f60c1f3ad48bbf14a57b22d942, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 3740663728
-      objectReference: {fileID: 0}
-    - target: {fileID: 3417560930319530251, guid: 9e7935f60c1f3ad48bbf14a57b22d942, type: 3}
-      propertyPath: InScenePlacedSourceGlobalObjectIdHash
-      value: 2803383255
       objectReference: {fileID: 0}
     - target: {fileID: 5385878624620728893, guid: 9e7935f60c1f3ad48bbf14a57b22d942, type: 3}
       propertyPath: m_LocalPosition.x
