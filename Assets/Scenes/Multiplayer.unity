@@ -14648,8 +14648,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   currentCash: 1000000
   shipRigidbody: {fileID: 1930242622903492867}
-  balloonLeft: {fileID: 0}
-  balloonRight: {fileID: 0}
+  balloonLeft: {fileID: 1240079741}
+  balloonRight: {fileID: 1239278063}
   CurrentCash:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -53256,6 +53256,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 43835904}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!223 &1812039958 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 6561881196444757440, guid: 6c126155fd741d1469e631736ffe32a3, type: 3}
+  m_PrefabInstance: {fileID: 3766191537543145734}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1820570009 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 789699249148315230, guid: 6c126155fd741d1469e631736ffe32a3, type: 3}
+  m_PrefabInstance: {fileID: 3766191537543145734}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
 --- !u!1 &1837310590
 GameObject:
   m_ObjectHideFlags: 0
@@ -91995,7 +92011,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1879637893311537699, guid: f140db0309f888e4ba5e122603aa3f65, type: 3}
       propertyPath: InScenePlacedSourceGlobalObjectIdHash
-      value: 3688646273
+      value: 2850545868
       objectReference: {fileID: 0}
     - target: {fileID: 5977233133829379456, guid: f140db0309f888e4ba5e122603aa3f65, type: 3}
       propertyPath: m_LocalPosition.x
@@ -92344,9 +92360,21 @@ PrefabInstance:
       propertyPath: cashTXT
       value: 
       objectReference: {fileID: 1308401229}
+    - target: {fileID: 6061700181632261272, guid: ebf89cc89595fb741a1e928b8b4e9ec9, type: 3}
+      propertyPath: hudCanvas
+      value: 
+      objectReference: {fileID: 1812039958}
+    - target: {fileID: 6061700181632261272, guid: ebf89cc89595fb741a1e928b8b4e9ec9, type: 3}
+      propertyPath: throwChargeSlider
+      value: 
+      objectReference: {fileID: 1820570009}
     - target: {fileID: 8999005545737853049, guid: ebf89cc89595fb741a1e928b8b4e9ec9, type: 3}
       propertyPath: m_Name
       value: UIManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 8999005545737853049, guid: ebf89cc89595fb741a1e928b8b4e9ec9, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -92508,6 +92536,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2263736794702727661, guid: 6c126155fd741d1469e631736ffe32a3, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3609361213776784251, guid: 6c126155fd741d1469e631736ffe32a3, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6561881196444757440, guid: 6c126155fd741d1469e631736ffe32a3, type: 3}
@@ -92528,7 +92560,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7578265788331421279, guid: 6c126155fd741d1469e631736ffe32a3, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8953104640003840228, guid: 6c126155fd741d1469e631736ffe32a3, type: 3}
       propertyPath: m_Pivot.x
@@ -93267,7 +93299,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1879637893311537699, guid: f140db0309f888e4ba5e122603aa3f65, type: 3}
       propertyPath: InScenePlacedSourceGlobalObjectIdHash
-      value: 3688646273
+      value: 2850545868
       objectReference: {fileID: 0}
     - target: {fileID: 5977233133829379456, guid: f140db0309f888e4ba5e122603aa3f65, type: 3}
       propertyPath: m_LocalPosition.x
