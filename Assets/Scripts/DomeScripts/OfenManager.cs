@@ -3,7 +3,7 @@ using UnityEngine;
 public class OfenManager : MonoBehaviour
 {
     [Header("Runtime Variables")]
-    public float CurrentEnergy { get; private set; } = 100f;
+    [SerializeField] public float CurrentEnergy = 100f;
     [SerializeField] private float currentEfficiency = 1f;
 
     [Header("Settings")]
