@@ -12868,20 +12868,12 @@ PrefabInstance:
       value: MoneyChest
       objectReference: {fileID: 0}
     - target: {fileID: 6450406074176188002, guid: 5d1bdb62f63d19342bf8a0ec86390468, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 6.8319716
-      objectReference: {fileID: 0}
-    - target: {fileID: 6450406074176188002, guid: 5d1bdb62f63d19342bf8a0ec86390468, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 2.919521
-      objectReference: {fileID: 0}
-    - target: {fileID: 6450406074176188002, guid: 5d1bdb62f63d19342bf8a0ec86390468, type: 3}
       propertyPath: m_LocalPosition.x
       value: 8.1509905
       objectReference: {fileID: 0}
     - target: {fileID: 6450406074176188002, guid: 5d1bdb62f63d19342bf8a0ec86390468, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.9587286
+      value: 1.26
       objectReference: {fileID: 0}
     - target: {fileID: 6450406074176188002, guid: 5d1bdb62f63d19342bf8a0ec86390468, type: 3}
       propertyPath: m_LocalPosition.z
@@ -20031,7 +20023,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.6
+  m_Volume: 0.4
   m_Pitch: 1
   Loop: 1
   Mute: 0

@@ -43,7 +43,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: -2384680590651159066, guid: 0aa46dcbf0b772c47bb2e113ba15cf2f, type: 2}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 9923c746270276c4db89883b7dc3e91d, type: 3}
+  m_Resource: {fileID: 8300000, guid: c561a0c468a001146b7e8faa10907e16, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -89,7 +89,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 0.9
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -307,7 +307,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2850545868
+  GlobalObjectIdHash: 2655860510
   InScenePlacedSourceGlobalObjectIdHash: 2850545868
   DeferredDespawnTick: 0
   Ownership: 1
