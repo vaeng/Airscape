@@ -32,6 +32,7 @@ public class PlayerMovement : MonoBehaviour
     private float _coyoteTimer;
     private float _jumpBufferTimer;
     private bool _slamming;
+    private bool isAnimating = false;
 
     // Moving rigidbody (the ship) the player stands on, and the player's position in its local space.
     private Transform _platform;
@@ -166,6 +167,28 @@ public class PlayerMovement : MonoBehaviour
         _platformHit = null;
         _cc.Move((_horizontalVelocity + Vector3.up * _verticalVelocity) * Time.deltaTime);
         StorePlatformAnchor();
+
+
+        if (TryGetComponent<PlayerInteraction>(out PlayerInteraction interaction))
+        {
+
+            if (_horizontalVelocity.magnitude > 0.4f)
+            {
+                if (!isAnimating)
+                {
+                    isAnimating = true;
+                    interaction.StartMovementAnimationServerRpc();
+                }
+            }
+            else
+            {
+                if (isAnimating)
+                {
+                    isAnimating = false;
+                    interaction.StopMovementAnimationServerRpc();
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -246,21 +269,7 @@ public class PlayerMovement : MonoBehaviour
                 _horizontalVelocity += inputDir * (speed * 3.6f * Time.deltaTime);
 
             _horizontalVelocity = Vector3.ClampMagnitude(_horizontalVelocity, _settings.airSpeedMax);
-
-
-        }
-        
-        if (TryGetComponent<PlayerInteraction>(out PlayerInteraction interaction))
-        {
-            if (_horizontalVelocity.magnitude > 0.1f)
-            {
-                interaction.StartMovementAnimationServerRpc();
-            }
-            else
-            {
-                interaction.StopMovementAnimationServerRpc();
-            }
-        }
+        }        
     }
 
     private void HandleGravity(bool grounded)
