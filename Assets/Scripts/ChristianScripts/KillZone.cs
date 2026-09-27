@@ -16,6 +16,8 @@ public class KillZone : NetworkBehaviour
                 other.gameObject.transform.rotation = spawnPoint.rotation;
                 cc.enabled = true;
                 cc.SimpleMove(Vector3.zero);
+                pc.Apply(id);
+                pc.PlayRespawnEffect();
             }
         }
 
