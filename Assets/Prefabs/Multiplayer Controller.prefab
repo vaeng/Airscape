@@ -465,6 +465,7 @@ GameObject:
   - component: {fileID: 5186332602126272195}
   - component: {fileID: 3222025873534101845}
   - component: {fileID: 791683139133222521}
+  - component: {fileID: 6476171668697422537}
   m_Layer: 8
   m_Name: Multiplayer Controller
   m_TagString: Untagged
@@ -890,6 +891,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DisableOwnMesh
   ShowTopMostFoldoutHeaderGroup: 1
   _meshRenderer: {fileID: 2284524881055289908}
+--- !u!114 &6476171668697422537
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4688565802699289721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9edbee1a356bb2c4e85ecdbbde68170e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerColour
+  ShowTopMostFoldoutHeaderGroup: 1
+  _headRenderer: {fileID: 2284524881055289908}
+  _materials:
+  - {fileID: 2100000, guid: d6a8c55ba1c99a44487b3f33cb76ef79, type: 2}
+  - {fileID: 2100000, guid: fac4f20076e8c3a47bb812d543b69cd8, type: 2}
+  - {fileID: 2100000, guid: d0ca7990725611a42b34872af307b33a, type: 2}
+  - {fileID: 2100000, guid: 7b46211abb5f5ef40890dca0e863d844, type: 2}
+  PlayerIndex:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: -1
 --- !u!1 &5249471087407706752
 GameObject:
   m_ObjectHideFlags: 0
