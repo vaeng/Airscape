@@ -196,6 +196,23 @@ public class PlayerInteraction : NetworkBehaviour
 
         // _heldItem is set once the server confirms via PickupItem.HeldBy.
         item.PickUpRpc(OwnerClientId);
+
+        // Trigger the grab animation if the player has an AnimationSystem component.
+        if (TryGetComponent<AnimationSystem>(out AnimationSystem animationSystem))
+        {
+            if (item.transform.childCount > 0)
+            {
+                if (item.transform.childCount > 1)
+                {
+                    animationSystem.Grab(item.transform.GetChild(0), item.transform.GetChild(1));
+                }
+                else
+                {
+                    animationSystem.Grab(item.transform.GetChild(0));
+                }
+            }
+        }
+
     }
 
     /// <summary>
@@ -274,6 +291,12 @@ public class PlayerInteraction : NetworkBehaviour
         _heldItem = null;
         _heldRotation = Quaternion.identity;
         _isChargingThrow = false;
+
+        // Trigger the release animation if the player has an AnimationSystem component.
+        if (TryGetComponent<AnimationSystem>(out AnimationSystem animationSystem))
+        {
+            animationSystem.Release();
+        }
     }
 
     private void DropItem(float throwCharge01)
