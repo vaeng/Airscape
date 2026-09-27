@@ -246,6 +246,18 @@ public class PlayerMovement : MonoBehaviour
                 _horizontalVelocity += inputDir * (speed * 3.6f * Time.deltaTime);
 
             _horizontalVelocity = Vector3.ClampMagnitude(_horizontalVelocity, _settings.airSpeedMax);
+
+            if (TryGetComponent<PlayerInteraction>(out PlayerInteraction interaction))
+            {
+                if (_horizontalVelocity.magnitude > 0f)
+                {
+                    interaction.StartMovementAnimationServerRpc();
+                }
+                else
+                {
+                    interaction.StopMovementAnimationServerRpc();
+                }
+            }
         }
     }
 

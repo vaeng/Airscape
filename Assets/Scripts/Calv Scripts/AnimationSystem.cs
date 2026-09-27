@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class AnimationSystem : MonoBehaviour
 {
-    [SerializeField] private Transform leftHandIK, rightHandIK, leftHandRestPos, rightHandRestPos, leftHandGrabPos, rightHandGrabPos;
+    [SerializeField] private Transform leftHandIK, rightHandIK, leftHandRestPos, rightHandRestPos, leftLeg, rightLeg;
     [SerializeField] private GameObject leftShoulder, rightShoulder;
     [SerializeField] private TwoBoneIKConstraint leftHandIKConstraint, rightHandIKConstraint;
-    [SerializeField] private float animationSpeed = 0.3f;
+    [SerializeField] private float handAnimationSpeed = 0.3f, legAnimationSpeed = 0.3f, legMaxAngle = 45f;
 
-    private Vector3 lastPos;
+    private float lastLegPos;
+    private bool isLegMoving = false;
 
     //Debug
     [SerializeField] private Transform leftMoney, rightMoney;
@@ -74,6 +75,28 @@ public class AnimationSystem : MonoBehaviour
     //}
 
 
+    private void Update()
+    {
+        if (isLegMoving)
+        {
+            float legAngle = Mathf.Sin(Time.time * legAnimationSpeed) * legMaxAngle;
+            leftLeg.localRotation = Quaternion.Euler(legAngle, 0f, 0f);
+            rightLeg.localRotation = Quaternion.Euler(-legAngle, 0f, 0f);
+        }
+    }
+
+    public void StartMovementAnimation()
+    {
+        lastLegPos = 0f;
+        isLegMoving = true;
+    }
+
+    public void StopMovementAnimation()
+    {
+        isLegMoving = false;
+        leftLeg.localRotation = Quaternion.identity;
+        rightLeg.localRotation = Quaternion.identity;
+    }
 
     public void Grab(Transform leftHandTarget = null, Transform rightHandTarget = null)
     {
@@ -134,10 +157,10 @@ public class AnimationSystem : MonoBehaviour
         float currentWeight = ikConstraint.weight;
         float elapsedTime = 0f;
 
-        while (elapsedTime < animationSpeed)
+        while (elapsedTime < handAnimationSpeed)
         {
             elapsedTime += Time.deltaTime;
-            ikConstraint.weight = Mathf.Lerp(currentWeight, targetWeight, elapsedTime / animationSpeed);
+            ikConstraint.weight = Mathf.Lerp(currentWeight, targetWeight, elapsedTime / handAnimationSpeed);
             yield return null;
         }
 

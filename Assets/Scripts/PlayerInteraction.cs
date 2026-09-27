@@ -118,6 +118,40 @@ public class PlayerInteraction : NetworkBehaviour
         HandleItemRotation();
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void StartMovementAnimationServerRpc(ServerRpcParams rpcParams = default)
+    {
+        // Server validates/authorizes here if needed, then tells clients to play the animation
+        StartMovementAnimationClientRpc(); 
+    }
+
+    [ClientRpc]
+    public void StartMovementAnimationClientRpc(ClientRpcParams clientRpcParams = default)
+    {
+        var anim = GetComponent<AnimationSystem>();
+        if (anim != null)
+        {
+            anim.StartMovementAnimation();
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void StopMovementAnimationServerRpc(ServerRpcParams rpcParams = default)
+    {
+        // Server validates/authorizes here if needed, then tells clients to play the animation
+        StopMovementAnimationClientRPC();
+    }
+
+    [ClientRpc]
+    public void StopMovementAnimationClientRPC(ClientRpcParams clientRpcParams = default)
+    {
+        var anim = GetComponent<AnimationSystem>();
+        if (anim != null)
+        {
+            anim.StopMovementAnimation();
+        }
+    }
+
     /// <summary>
     /// Interact: picks up items with empty hands; held on a repair point while carrying money, it repairs it.
     /// </summary>
