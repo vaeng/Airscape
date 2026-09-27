@@ -184,6 +184,23 @@ public class PickupItem : NetworkBehaviour
         _distVelocity = 0f;
         _stuckTimer = 0f;
         HeldBy.Value = clientId;
+
+
+        // Trigger the grab animation if the player has an AnimationSystem component.
+        if (_holderRoot.TryGetComponent<AnimationSystem>(out AnimationSystem animationSystem))
+        {
+            if (transform.childCount > 0)
+            {
+                if (transform.childCount > 1)
+                {
+                    animationSystem.Grab(transform.GetChild(0), transform.GetChild(1));
+                }
+                else
+                {
+                    animationSystem.Grab(transform.GetChild(0));
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -195,6 +212,12 @@ public class PickupItem : NetworkBehaviour
         if (HeldBy.Value == ulong.MaxValue) return;
 
         Vector3 throwDir = _holderCamPoint != null ? _holderCamPoint.forward : Vector3.forward;
+
+        // Trigger the grab animation if the player has an AnimationSystem component.
+        if (_holderRoot.TryGetComponent<AnimationSystem>(out AnimationSystem animationSystem))
+        {
+            animationSystem.Release();
+        }
 
         _holderCamPoint = null;
         _holderRoot = null;
