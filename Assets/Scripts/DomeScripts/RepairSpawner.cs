@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
@@ -8,6 +9,12 @@ public class RepairSpawner : NetworkBehaviour
     [Tooltip("Parent object. Every direct child is a spawn point, whose first child is the indicator that is only visible while the point is active.")]
     [SerializeField] private GameObject repairSpawns;
     [SerializeField] private GameObject smokeVFX;
+
+    [Header("Audio")]
+    [Tooltip("Played once on the indicator's AudioSource when a spawn point becomes active.")]
+    [SerializeField] private AudioClip explosionSFX;
+    [Tooltip("Looped on the indicator's AudioSource after the explosion, until the point is repaired.")]
+    [SerializeField] private AudioClip damageSFX;
 
     [Header("Settings")]
     [Tooltip("How many repair points can be active at the same time, across ALL spawners. Taken from the first spawned spawner.")]
@@ -28,6 +35,10 @@ public class RepairSpawner : NetworkBehaviour
     private GameObject[] _smokes = System.Array.Empty<GameObject>();
     private AudioSource[] _repairSounds = System.Array.Empty<AudioSource>();
     private AudioSource _repairCompleteSound;
+    private AudioSource[] _damageSounds = System.Array.Empty<AudioSource>();
+    private Coroutine[] _damageRoutines = System.Array.Empty<Coroutine>();
+    // The mask currently shown, to detect which points just got activated.
+    private ulong _shownMask;
 
     // Server only. All spawned spawners share one limit and one timer, driven by the first one.
     private static readonly List<RepairSpawner> AllSpawners = new();
@@ -48,6 +59,8 @@ public class RepairSpawner : NetworkBehaviour
         _indicators = new GameObject[count];
         _smokes = new GameObject[count];
         _repairSounds = new AudioSource[count];
+        _damageSounds = new AudioSource[count];
+        _damageRoutines = new Coroutine[count];
         _repairCompleteSound = repairSpawns.GetComponent<AudioSource>();
 
         for (int i = 0; i < count; i++)
@@ -57,7 +70,12 @@ public class RepairSpawner : NetworkBehaviour
             _repairSounds[i] = point.GetComponent<AudioSource>();
 
             if (point.childCount > 0)
+            {
                 _indicators[i] = point.GetChild(0).gameObject;
+                _damageSounds[i] = _indicators[i].GetComponent<AudioSource>();
+                // Started from code instead, so the explosion plays first.
+                if (_damageSounds[i] != null) _damageSounds[i].playOnAwake = false;
+            }
 
             if (smokeVFX != null)
                 _smokes[i] = Instantiate(smokeVFX, point.position, point.rotation, point);
@@ -69,7 +87,8 @@ public class RepairSpawner : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         activeMask.OnValueChanged += OnActiveMaskChanged;
-        UpdateVisuals(activeMask.Value);
+        // Late joiners skip the explosion and hear only the damage loop.
+        UpdateVisuals(activeMask.Value, playExplosion: false);
 
         if (IsServer) AllSpawners.Add(this);
     }
@@ -205,13 +224,51 @@ public class RepairSpawner : NetworkBehaviour
         if (_repairCompleteSound != null) _repairCompleteSound.Play();
     }
 
-    private void UpdateVisuals(ulong mask)
+    private void UpdateVisuals(ulong mask, bool playExplosion = true)
     {
         for (int i = 0; i < _repairSpawnPoints.Length; i++)
         {
             bool active = (mask & (1UL << i)) != 0;
+            bool wasActive = (_shownMask & (1UL << i)) != 0;
             if (_indicators[i] != null) _indicators[i].SetActive(active);
             if (_smokes[i] != null) _smokes[i].SetActive(active);
+
+            if (active && !wasActive) StartDamageSound(i, playExplosion);
+            else if (!active && wasActive) StopDamageSound(i);
+        }
+        _shownMask = mask;
+    }
+
+    private void StartDamageSound(int index, bool playExplosion)
+    {
+        StopDamageSound(index);
+        if (_damageSounds[index] != null)
+            _damageRoutines[index] = StartCoroutine(DamageSoundRoutine(_damageSounds[index], playExplosion));
+    }
+
+    private void StopDamageSound(int index)
+    {
+        if (_damageRoutines[index] != null) StopCoroutine(_damageRoutines[index]);
+        _damageRoutines[index] = null;
+        if (_damageSounds[index] != null) _damageSounds[index].Stop();
+    }
+
+    /// <summary>Plays the explosion once, then loops the damage sound.</summary>
+    private IEnumerator DamageSoundRoutine(AudioSource source, bool playExplosion)
+    {
+        if (playExplosion && explosionSFX != null)
+        {
+            source.loop = false;
+            source.clip = explosionSFX;
+            source.Play();
+            yield return new WaitForSeconds(explosionSFX.length / Mathf.Max(Mathf.Abs(source.pitch), 0.01f));
+        }
+
+        if (damageSFX != null)
+        {
+            source.clip = damageSFX;
+            source.loop = true;
+            source.Play();
         }
     }
 
