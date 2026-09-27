@@ -1,26 +1,36 @@
+using Unity.Netcode;
 using UnityEngine;
 
 public class BalloonBehaviour : MonoBehaviour
 {
-    [SerializeField] private int debugLiftForce;
     [SerializeField] private OfenManager leftOfen, rightOfen;
 
-    [SerializeField] private float leftLiftForce;
-    [SerializeField] private float rightLiftForce;
-    
-    private void Update()
+    [Header("Vertical Movement")]
+    [Tooltip("Vertical speed (m/s) while at least one balloon is damaged or both ovens are at efficiency 1.")]
+    [SerializeField, Min(0f)] private float sinkSpeed = 0.5f;
+    [Tooltip("Vertical speed (m/s) while no balloon is damaged and at least one oven is at efficiency 2 or higher.")]
+    [SerializeField, Min(0f)] private float riseSpeed = 0.5f;
+
+    [Header("Runtime Variables")]
+    [SerializeField] private float leftEfficiency;
+    [SerializeField] private float rightEfficiency;
+    [SerializeField] private float targetVerticalSpeed;
+
+    private void FixedUpdate()
     {
-        // RPCs can only be sent once the NetworkManager is running and the GameManager is spawned.
+        // Ship physics is server authoritative, so only the server applies lift.
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
         if (GameManager.Instance == null || !GameManager.Instance.IsSpawned) return;
         if (GameManager.Instance.CurrentState.Value != GameState.Playing) return;
 
-        leftLiftForce = leftOfen != null ? leftOfen.GetEnergy() : 0f;
-        rightLiftForce = rightOfen != null ? rightOfen.GetEnergy() : 0f;
+        leftEfficiency = leftOfen != null ? leftOfen.Efficiency : 0f;
+        rightEfficiency = rightOfen != null ? rightOfen.Efficiency : 0f;
 
-        leftLiftForce = leftOfen.Efficiency == 1 ? debugLiftForce : leftLiftForce;
-        rightLiftForce = rightOfen.Efficiency == 1 ? debugLiftForce : rightLiftForce;
+        // A damaged balloon (efficiency 0) always makes the whole ship sink, even if the other one still burns.
+        bool anyDamaged = leftEfficiency <= 0f || rightEfficiency <= 0f;
+        bool anyBoosted = leftEfficiency >= 2f || rightEfficiency >= 2f;
+        targetVerticalSpeed = !anyDamaged && anyBoosted ? riseSpeed : -sinkSpeed;
 
-        GameManager.Instance.HandleShipPhysicsRPC(leftLiftForce, rightLiftForce);
-        //Debug.Log("Trylift: L: " + leftLiftForce + ", R: " + rightLiftForce);
+        GameManager.Instance.ApplyShipLift(leftEfficiency, rightEfficiency, targetVerticalSpeed);
     }
 }
