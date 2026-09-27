@@ -1,18 +1,20 @@
 using System;
+using System.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
 
-public enum GameState { Lobby, Playing }
+public enum GameState { Lobby, Playing, GameOver }
 
 /// <summary>
-/// Owns game phase state (Lobby/Playing) for all clients via NetworkVariable.
+/// Owns game phase state (Lobby/Playing/GameOver) for all clients via NetworkVariable.
 /// </summary>
 public class GameManager : NetworkBehaviour
 {
     [SerializeField] private GameObject ship;
     public const int StartingCash = 1000000;
+    private const float RestartDelay = 5f;
     [SerializeField] private int currentCash = StartingCash;
     [SerializeField] private Rigidbody shipRigidbody;
     [SerializeField] private Transform balloonLeft, balloonRight;
@@ -76,27 +78,45 @@ public class GameManager : NetworkBehaviour
         CurrentState.Value = GameState.Playing;
     }
 
+    /// <summary>
+    /// Can be called from any client, the server decides once and tells everyone.
+    /// Further calls are ignored until a new game is running.
+    /// </summary>
     [Rpc(SendTo.Server)]
     public void EndGameRpc(bool won = false)
     {
-        if (won) Debug.Log("[GameManager] Game ended: players won!");
-        else Debug.Log("[GameManager] Game ended: players lost!");
+        EndGame(won);
+    }
 
+    /// <summary>Server only. Ends the running game for all clients.</summary>
+    public void EndGame(bool won)
+    {
+        if (!IsServer || CurrentState.Value != GameState.Playing) return;
+
+        Debug.Log(won ? "[GameManager] Game ended: players won!" : "[GameManager] Game ended: players lost!");
+        CurrentState.Value = GameState.GameOver;
+        ShowEndScreenRpc(won);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void ShowEndScreenRpc(bool won)
+    {
         var lobbyui = FindAnyObjectByType<LobbyUI>(FindObjectsInactive.Include);
         if (lobbyui != null)
         {
             lobbyui.gameObject.SetActive(true);
             lobbyui.SetEndScreen(won);
-            lobbyui.RestartClicked += () => {
-                Debug.Log("[GameManager] Restart clicked, returning to idle state.");
-                lobbyui.SetIdle();
-            };
         }
         else { Debug.LogWarning("[GameManager] LobbyUI not found, cannot show end screen."); }
+
         var hud = FindAnyObjectByType<UIManager>(FindObjectsInactive.Include);
         if (hud != null) hud.gameObject.SetActive(false);
-        CurrentState.Value = GameState.Lobby;
-        StartCoroutine(RestartAfter5Seconds());
+
+        UnityEngine.Cursor.lockState = CursorLockMode.None;
+        UnityEngine.Cursor.visible = true;
+
+        // Clients leave first, so the host does not drop them while they are still connected.
+        StartCoroutine(RestartAfter(IsServer ? RestartDelay + 1f : RestartDelay));
     }
     #endregion
 
@@ -160,15 +180,16 @@ public class GameManager : NetworkBehaviour
 
     private void Update()
     {
-        if (!logLiftDebug || !IsSpawned || !IsServer) return;
+        if (!IsSpawned || !IsServer) return;
+
+        if (CurrentState.Value == GameState.Playing && ship != null && ship.transform.position.y < -100f)
+            EndGame(false);
+
+        if (!logLiftDebug) return;
         if (shipRigidbody != null && Time.time - _lastLiftTime > 1f && Time.time >= _nextLiftLog)
         {
             _nextLiftLog = Time.time + 1f;
             Debug.LogWarning("[ShipLift] ApplyShipLift is not being called. Is BalloonBehaviour active and are its ovens assigned?", this);
-        }
-        if(ship.transform.position.y < -100f)
-        {
-            EndGameRpc(false);
         }
     }
 
@@ -229,9 +250,30 @@ public class GameManager : NetworkBehaviour
         return false;
     }
 
-    IEnumerator RestartAfter5Seconds()
+    private IEnumerator RestartAfter(float delay)
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(delay);
+        RestartScene();
+    }
+
+    /// <summary>
+    /// Leaves the session (Vivox + NGO) and reloads the scene, like leaving from the pause menu,
+    /// so every player ends up back in their own solo lobby.
+    /// </summary>
+    private static async void RestartScene()
+    {
+        var relay = FindFirstObjectByType<RelayManager>();
+        var nm = NetworkManager.Singleton;
+        if (relay != null) await relay.LeaveAsync();
+        else if (nm != null) nm.Shutdown();
+
+        float t = 0f;
+        while (nm != null && (nm.ShutdownInProgress || nm.IsListening) && t < 5f)
+        {
+            await Task.Yield();
+            t += Time.deltaTime;
+        }
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
     #endregion

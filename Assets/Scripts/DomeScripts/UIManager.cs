@@ -43,10 +43,6 @@ public class UIManager : MonoBehaviour
         BindCanvasToPlayerCamera();
         UpdateThrowChargeSlider();
         UpdateProgressSlider();
-        if(progressSlider.value == 1f)
-        {
-            GameManager.Instance.EndGameRpc(true);
-        }
     }
 
     private void UpdateProgressSlider()
@@ -55,10 +51,9 @@ public class UIManager : MonoBehaviour
 
         progressTimer = Mathf.Min(progressTimer + Time.deltaTime, progressDuration);
         progressSlider.value = progressTimer / progressDuration;
-        if(progressTimer >= progressDuration)
-        {
-            GameManager.Instance.EndGameRpc(true);
-        }
+        // Only the server decides the end of the game, clients just show the progress.
+        if (progressTimer >= progressDuration && GameManager.Instance.IsServer)
+            GameManager.Instance.EndGame(true);
     }
 
     private void BindCanvasToPlayerCamera()

@@ -318,7 +318,7 @@ public class PlayerInteraction : NetworkBehaviour
 
     private void DropItem(float throwCharge01)
     {
-        _heldItem.DropRpc(throwCharge01);
+        _heldItem.Drop(throwCharge01);
         _heldItem = null;
         _heldRotation = Quaternion.identity;
     }
@@ -339,6 +339,6 @@ public class PlayerInteraction : NetworkBehaviour
                       * Quaternion.AngleAxis(-delta.y, Vector3.right)
                       * _heldRotation;
 
-        _heldItem.SetHeldRotationRpc(_heldRotation);
+        _heldItem.SetHeldRotation(_heldRotation);
     }
 }

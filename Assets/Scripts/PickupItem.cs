@@ -38,6 +38,12 @@ public class PickupItem : NetworkBehaviour
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
+    // Held rotation offset, replicated so non-holding clients can pose the item locally.
+    private readonly NetworkVariable<Quaternion> _syncedHeldRotation = new NetworkVariable<Quaternion>(
+        Quaternion.identity,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
+
     private Rigidbody _rb;
     private Collider _col;
     private Quaternion _heldRotation = Quaternion.identity;
@@ -85,6 +91,17 @@ public class PickupItem : NetworkBehaviour
         _rb.interpolation = held ? RigidbodyInterpolation.None
                                  : RigidbodyInterpolation.Interpolate;
 
+        // Clients pose the held item themselves from the holder's transform — see LateUpdate.
+        if (!IsServer)
+        {
+            var holder = held ? FindPlayerObject(current) : null;
+            _holderRoot = holder != null ? holder.gameObject : null;
+            _holderCamPoint = holder != null ? holder.transform.Find("CameraPoint") : null;
+            _currentDist = _holdDistance;
+            _distVelocity = 0f;
+            if (!held) _heldRotation = Quaternion.identity;
+        }
+
         // Keep the local player's held-item state in sync with the server's authority.
         var local = PlayerInteraction.Local;
         if (local == null) return;
@@ -94,10 +111,32 @@ public class PickupItem : NetworkBehaviour
         else if (previous == me) local.ReleaseHeldItem(this);
     }
 
+    /// <summary>
+    /// Player object of the given client. SpawnManager.GetPlayerNetworkObject only returns the
+    /// local player on clients, so search the spawned objects instead.
+    /// </summary>
+    private NetworkObject FindPlayerObject(ulong clientId)
+    {
+        foreach (var obj in NetworkManager.SpawnManager.SpawnedObjectsList)
+        {
+            if (obj.IsPlayerObject && obj.OwnerClientId == clientId) return obj;
+        }
+        return null;
+    }
+
     private void LateUpdate()
     {
-        if (!IsServer || HeldBy.Value == ulong.MaxValue) return;
+        if (!IsSpawned || HeldBy.Value == ulong.MaxValue) return;
 
+        if (IsServer) ServerUpdateHeld();
+        else ClientUpdateHeld();
+    }
+
+    /// <summary>
+    /// Server: authoritative held pose, plus auto-drop when stuck or the holder is gone.
+    /// </summary>
+    private void ServerUpdateHeld()
+    {
         if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(HeldBy.Value, out var client)
             || client.PlayerObject == null)
         {
@@ -106,23 +145,7 @@ public class PickupItem : NetworkBehaviour
         }
 
         var camPoint = _holderCamPoint != null ? _holderCamPoint : client.PlayerObject.transform;
-        var origin = camPoint.position;
-        var forward = camPoint.forward;
-
-        // RaycastAll so we can skip hits on the holder's own body before checking geometry.
-        float rawTarget = _holdDistance;
-        var hits = Physics.RaycastAll(origin, forward, _holdDistance,
-            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
-        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
-
-        foreach (var h in hits)
-        {
-            if (_holderRoot != null && h.collider.transform.IsChildOf(_holderRoot.transform))
-                continue;
-
-            rawTarget = Mathf.Max(h.distance - 0.15f, _minHoldDistance);
-            break;
-        }
+        float rawTarget = ComputeHoldTarget(camPoint);
 
         // Auto-drop when jammed at minimum distance — item is stuck against geometry.
         if (rawTarget <= _minHoldDistance + 0.01f)
@@ -133,6 +156,7 @@ public class PickupItem : NetworkBehaviour
                 _holderCamPoint = null;
                 _holderRoot = null;
                 _heldRotation = Quaternion.identity;
+                _syncedHeldRotation.Value = Quaternion.identity;
                 _stuckTimer = 0f;
                 HeldBy.Value = ulong.MaxValue;
                 return;
@@ -143,16 +167,71 @@ public class PickupItem : NetworkBehaviour
             _stuckTimer = 0f;
         }
 
+        ApplyHeldPose(camPoint, client.PlayerObject.transform, rawTarget, _heldRotation);
+    }
+
+    /// <summary>
+    /// Clients: pose the item from the holder's local transform instead of waiting for the server's
+    /// NetworkTransform. NGO applies synced transforms before script LateUpdate, so this overrides
+    /// them while held — the holder sees no round-trip lag, others see it glued to the holder.
+    /// </summary>
+    private void ClientUpdateHeld()
+    {
+        if (_holderRoot == null) return;
+
+        var camPoint = _holderCamPoint != null ? _holderCamPoint : _holderRoot.transform;
+        bool isMine = HeldBy.Value == NetworkManager.Singleton.LocalClientId;
+        var rotation = isMine ? _heldRotation : _syncedHeldRotation.Value;
+
+        ApplyHeldPose(camPoint, _holderRoot.transform, ComputeHoldTarget(camPoint), rotation);
+    }
+
+    /// <summary>
+    /// Hold distance along the camera ray, pulled in when geometry is in the way.
+    /// </summary>
+    private float ComputeHoldTarget(Transform camPoint)
+    {
+        // RaycastAll so we can skip hits on the holder's own body before checking geometry.
+        var hits = Physics.RaycastAll(camPoint.position, camPoint.forward, _holdDistance,
+            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (var h in hits)
+        {
+            if (_holderRoot != null && h.collider.transform.IsChildOf(_holderRoot.transform))
+                continue;
+
+            return Mathf.Max(h.distance - 0.15f, _minHoldDistance);
+        }
+
+        return _holdDistance;
+    }
+
+    private void ApplyHeldPose(Transform camPoint, Transform playerRoot, float rawTarget, Quaternion heldRotation)
+    {
         // Shrink quickly when approaching a surface, expand slowly when clearing one.
         float smoothTime = rawTarget < _currentDist ? 0.04f : 0.3f;
         _currentDist = Mathf.SmoothDamp(_currentDist, rawTarget, ref _distVelocity, smoothTime);
 
-        transform.position = origin + forward * _currentDist;
-        transform.rotation = client.PlayerObject.transform.rotation * _heldRotation;
+        transform.position = camPoint.position + camPoint.forward * _currentDist;
+        transform.rotation = playerRoot.rotation * heldRotation;
+    }
+
+    /// <summary>
+    /// Holder: applies the rotation locally right away and forwards it to the server.
+    /// </summary>
+    public void SetHeldRotation(Quaternion rotation)
+    {
+        _heldRotation = rotation;
+        SetHeldRotationRpc(rotation);
     }
 
     [Rpc(SendTo.Server)]
-    public void SetHeldRotationRpc(Quaternion rotation) => _heldRotation = rotation;
+    private void SetHeldRotationRpc(Quaternion rotation)
+    {
+        _heldRotation = rotation;
+        _syncedHeldRotation.Value = rotation;
+    }
 
     [Rpc(SendTo.Server)]
     public void PickUpRpc(ulong clientId) => ServerPickUp(clientId);
@@ -205,16 +284,27 @@ public class PickupItem : NetworkBehaviour
 
     /// <summary>
     /// Releases the item. throwCharge01 = 0 is a plain drop, 1 is a full-strength throw.
+    /// Sends the holder's local pose and aim, so the item leaves where the holder saw it.
     /// </summary>
+    public void Drop(float throwCharge01)
+    {
+        Vector3 throwDir = _holderCamPoint != null ? _holderCamPoint.forward : transform.forward;
+        DropRpc(throwCharge01, transform.position, transform.rotation, throwDir);
+    }
+
     [Rpc(SendTo.Server)]
-    public void DropRpc(float throwCharge01)
+    private void DropRpc(float throwCharge01, Vector3 position, Quaternion rotation, Vector3 throwDir)
     {
         if (HeldBy.Value == ulong.MaxValue) return;
 
-        Vector3 throwDir = _holderCamPoint != null ? _holderCamPoint.forward : Vector3.forward;
+        // The server sees the holder slightly in the past — trust the holder's pose within reason.
+        if ((position - transform.position).sqrMagnitude < 4f * _holdDistance * _holdDistance)
+            transform.SetPositionAndRotation(position, rotation);
+
+        throwDir = throwDir.sqrMagnitude > 0.0001f ? throwDir.normalized : transform.forward;
 
         // Trigger the grab animation if the player has an AnimationSystem component.
-        if (_holderRoot.TryGetComponent<AnimationSystem>(out AnimationSystem animationSystem))
+        if (_holderRoot != null && _holderRoot.TryGetComponent<AnimationSystem>(out AnimationSystem animationSystem))
         {
             animationSystem.Release();
         }
@@ -222,8 +312,10 @@ public class PickupItem : NetworkBehaviour
         _holderCamPoint = null;
         _holderRoot = null;
         _heldRotation = Quaternion.identity;
+        _syncedHeldRotation.Value = Quaternion.identity;
         _stuckTimer = 0f;
         HeldBy.Value = ulong.MaxValue;
+        Physics.SyncTransforms();
         _rb.AddForce(throwDir * GetThrowForce(throwCharge01), ForceMode.Impulse);
     }
 }
