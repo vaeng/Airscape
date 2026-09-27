@@ -51,6 +51,10 @@ public class UIManager : MonoBehaviour
 
         progressTimer = Mathf.Min(progressTimer + Time.deltaTime, progressDuration);
         progressSlider.value = progressTimer / progressDuration;
+        if(progressTimer >= progressDuration)
+        {
+            GameManager.Instance.EndGameRpc(true);
+        }
     }
 
     private void BindCanvasToPlayerCamera()

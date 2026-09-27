@@ -22,6 +22,7 @@ public class LobbyController : MonoBehaviour
         _ui.JoinClicked += OnJoin;
         _ui.LeaveClicked += OnLeave;
         _ui.StartClicked += OnStart;
+        _ui.RestartClicked += OnLeave;
         _ui.QuitClicked += () => Application.Quit();
 
         GameManager.OnGameStarted += OnGameStarted;
@@ -88,9 +89,10 @@ public class LobbyController : MonoBehaviour
         }
     }
 
-    private async void OnLeave()
+    public async void OnLeave()
     {
         // Leave Relay client session, return to solo local host.
+        Debug.Log("[LobbyController] Leaving Relay session, returning to local host.");
         await _relay.LeaveAsync();
         await WaitForShutdown();
         StartLocalHost();

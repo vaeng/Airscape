@@ -1,6 +1,8 @@
 using System;
 using Unity.Netcode;
 using UnityEngine;
+using System.Collections;
+using UnityEngine.SceneManagement;
 
 public enum GameState { Lobby, Playing }
 
@@ -64,6 +66,29 @@ public class GameManager : NetworkBehaviour
     {
         if (!IsServer) return;
         CurrentState.Value = GameState.Playing;
+    }
+
+    [Rpc(SendTo.Server)]
+    public void EndGameRpc(bool won = false)
+    {
+        if (won) Debug.Log("[GameManager] Game ended: players won!");
+        else Debug.Log("[GameManager] Game ended: players lost!");
+
+        var lobbyui = FindAnyObjectByType<LobbyUI>(FindObjectsInactive.Include);
+        if (lobbyui != null)
+        {
+            lobbyui.gameObject.SetActive(true);
+            lobbyui.SetEndScreen(won);
+            lobbyui.RestartClicked += () => {
+                Debug.Log("[GameManager] Restart clicked, returning to idle state.");
+                lobbyui.SetIdle();
+            };
+        }
+        else { Debug.LogWarning("[GameManager] LobbyUI not found, cannot show end screen."); }
+        var hud = FindAnyObjectByType<UIManager>(FindObjectsInactive.Include);
+        if (hud != null) hud.gameObject.SetActive(false);
+        CurrentState.Value = GameState.Lobby;
+        StartCoroutine(RestartAfter5Seconds());
     }
     #endregion
 
@@ -171,6 +196,12 @@ public class GameManager : NetworkBehaviour
             return true;
         }
         return false;
+    }
+
+    IEnumerator RestartAfter5Seconds()
+    {
+        yield return new WaitForSeconds(5f);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
     #endregion
 }
