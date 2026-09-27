@@ -510,13 +510,15 @@ MonoBehaviour:
   rightHandIK: {fileID: 2694776498839653209}
   leftHandRestPos: {fileID: 358023545491532540}
   rightHandRestPos: {fileID: 471309310196175984}
-  leftHandGrabPos: {fileID: 0}
-  rightHandGrabPos: {fileID: 0}
+  leftLeg: {fileID: 7203175571493801744}
+  rightLeg: {fileID: 7944474000735151239}
   leftShoulder: {fileID: 3951174328970932312}
   rightShoulder: {fileID: 8107173551559485107}
   leftHandIKConstraint: {fileID: 3720145227244838628}
   rightHandIKConstraint: {fileID: 8361510417713328071}
-  animationSpeed: 0.2
+  handAnimationSpeed: 0.3
+  legAnimationSpeed: 1
+  legMaxAngle: 45
   leftMoney: {fileID: 0}
   rightMoney: {fileID: 0}
   dosomething: 0
@@ -748,7 +750,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2823149549
+  GlobalObjectIdHash: 2154132529
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -1310,6 +1312,16 @@ GameObject:
 --- !u!4 &5102377237282948544 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8187068127137191982, guid: f67384fbe58cd3147899b404caff2f41, type: 3}
+  m_PrefabInstance: {fileID: 3985973768033230318}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7203175571493801744 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6100077322500412158, guid: f67384fbe58cd3147899b404caff2f41, type: 3}
+  m_PrefabInstance: {fileID: 3985973768033230318}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7944474000735151239 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6418041815567464809, guid: f67384fbe58cd3147899b404caff2f41, type: 3}
   m_PrefabInstance: {fileID: 3985973768033230318}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &8107173551559485107 stripped
