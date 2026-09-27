@@ -33,6 +33,11 @@ public class PlayerMovement : MonoBehaviour
     private float _jumpBufferTimer;
     private bool _slamming;
 
+    // Moving rigidbody (the ship) the player stands on, and the player's position in its local space.
+    private Transform _platform;
+    private Vector3 _platformLocalPos;
+    private Transform _platformHit;
+
     /// <summary>
     /// The player's own camera once it has taken over from the scene camera, otherwise null.
     /// </summary>
@@ -142,6 +147,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (_moveAction == null || _settings == null) return;
 
+        FollowPlatform();
+
         bool grounded = _cc.isGrounded;
         float speed = (_sprintAction != null && _sprintAction.IsPressed()) ? _settings.sprintSpeed : _settings.walkSpeed;
         Vector3 inputDir = ReadMoveInput();
@@ -156,7 +163,37 @@ public class PlayerMovement : MonoBehaviour
         HandleHorizontalMovement(grounded, wantsJump, inputDir, speed);
         HandleGravity(grounded);
 
+        _platformHit = null;
         _cc.Move((_horizontalVelocity + Vector3.up * _verticalVelocity) * Time.deltaTime);
+        StorePlatformAnchor();
+    }
+
+    /// <summary>
+    /// Carries the player along with the ship. A CharacterController is never pushed by rigidbodies,
+    /// it blocks them like a wall, so without this a player on deck keeps the ship from rising.
+    /// </summary>
+    private void FollowPlatform()
+    {
+        if (_platform == null) return;
+
+        Vector3 delta = _platform.TransformPoint(_platformLocalPos) - transform.position;
+        // Large jumps mean the player was teleported (respawn), so the old anchor is no longer valid.
+        if (delta.sqrMagnitude > 4f) { _platform = null; return; }
+        if (delta.sqrMagnitude > 0f) _cc.Move(delta);
+    }
+
+    private void StorePlatformAnchor()
+    {
+        _platform = _cc.isGrounded ? _platformHit : null;
+        if (_platform != null) _platformLocalPos = _platform.InverseTransformPoint(transform.position);
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        // Only ground below the player, and only moving bodies. Static ground needs no carrying.
+        if (hit.normal.y < 0.5f) return;
+        var rb = hit.collider.attachedRigidbody;
+        if (rb != null && rb.GetComponent<PickupItem>() == null) _platformHit = rb.transform;
     }
 
     private Vector3 ReadMoveInput()

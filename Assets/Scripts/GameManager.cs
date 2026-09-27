@@ -13,21 +13,23 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private int currentCash = StartingCash;
     [SerializeField] private Rigidbody shipRigidbody;
     [SerializeField] private Transform balloonLeft, balloonRight;
-    [Tooltip("How quickly the ship reaches its target vertical speed (1/s).")]
-    [SerializeField, Min(0f)] private float verticalResponsiveness = 2f;
-    [Tooltip("How quickly extra lift builds up to carry additional load on deck (money, items).")]
-    [SerializeField, Min(0f)] private float loadCompensation = 3f;
-    [Tooltip("Maximum extra upward acceleration (m/s²) the load compensation may add. ~10 = extra load up to the ship's own mass.")]
-    [SerializeField, Min(0f)] private float maxLoadCompensation = 20f;
-    [Tooltip("Maximum share of the total lift that may shift to one balloon. 0 = always 50/50 (no tilt), 0.5 = one balloon may carry everything.")]
-    [SerializeField, Range(0f, 0.5f)] private float maxLiftImbalance = 0.1f;
+    [Tooltip("Upward force of ONE balloon per oven efficiency level, as a share of the ship's weight. Index 0 = damaged balloon, 1..3 = efficiency level. Both balloons together above 1 = the ship rises.")]
+    [SerializeField] private float[] liftPerLevel = { 0f, 0.45f, 0.75f, 0.95f };
+    [Tooltip("Air resistance against vertical movement (1/s), on top of the Rigidbody's linear damping. Higher = slower rising/sinking.")]
+    [SerializeField, Min(0f)] private float verticalDrag = 2f;
     [Tooltip("Mass (kg) each player standing on the ship pushes down with. Ship mass for comparison: see its Rigidbody.")]
     [SerializeField, Min(0f)] private float playerMass = 7f;
     [Tooltip("How far below the player's feet the ship deck is searched.")]
     [SerializeField, Min(0f)] private float playerGroundCheckDistance = 0.5f;
-    [SerializeField] private float liftIntegral;
+    [Tooltip("Runtime: lift of both balloons as a share of the ship's weight. Above 1 = rising (without players/cargo).")]
+    [SerializeField] private float totalLiftShare;
+    [Tooltip("Logs the ship's lift and rigidbody state once per second (server only).")]
+    [SerializeField] private bool logLiftDebug = true;
+    private float _nextLiftLog, _lastLiftTime;
 
     private readonly RaycastHit[] _groundHits = new RaycastHit[8];
+
+    public Rigidbody ShipRigidbody => shipRigidbody;
 
     public NetworkVariable<int> CurrentCash = new(
         StartingCash,
@@ -74,43 +76,59 @@ public class GameManager : NetworkBehaviour
     }
 
     /// <summary>
-    /// Server only, call from FixedUpdate. Applies balloon lift so the ship moves vertically at
-    /// <paramref name="targetVerticalSpeed"/> (negative = sinking). The lift is applied at each balloon
-    /// and shifted slightly towards the more efficient one, so the ship tilts a little towards the weaker side.
+    /// Server only, call from FixedUpdate. Every balloon pushes the ship up at its own position with a force
+    /// depending on its oven efficiency (0 = damaged). Whether the ship rises, hovers or sinks follows
+    /// from lift vs. weight (ship, players, cargo), so a weaker balloon lets its side drop.
     /// </summary>
-    public void ApplyShipLift(float leftEfficiency, float rightEfficiency, float targetVerticalSpeed)
+    public void ApplyShipLift(float leftEfficiency, float rightEfficiency)
     {
-        if (!IsServer || shipRigidbody == null) return;
+        if (!IsServer) return;
+        if (shipRigidbody == null || balloonLeft == null || balloonRight == null)
+        {
+            if (Time.time >= _nextLiftLog)
+            {
+                _nextLiftLog = Time.time + 1f;
+                Debug.LogError("[ShipLift] GameManager is missing Ship Rigidbody, Balloon Left or Balloon Right. Assign them in the inspector.", this);
+            }
+            return;
+        }
 
+        float shipWeight = shipRigidbody.mass * -Physics.gravity.y;
+        totalLiftShare = GetLiftShare(leftEfficiency) + GetLiftShare(rightEfficiency);
+        shipRigidbody.AddForceAtPosition(Vector3.up * (shipWeight * GetLiftShare(leftEfficiency)), balloonLeft.position, ForceMode.Force);
+        shipRigidbody.AddForceAtPosition(Vector3.up * (shipWeight * GetLiftShare(rightEfficiency)), balloonRight.position, ForceMode.Force);
+
+        // Air resistance limits the vertical speed instead of a speed controller.
         float verticalSpeed = shipRigidbody.linearVelocity.y;
-        float speedError = targetVerticalSpeed - verticalSpeed;
-
-        // The integral builds up extra lift for loads the ship does not know about (money, items on deck).
-        // It never goes negative: while sinking is blocked (ground, collision) it would otherwise wind up
-        // and cancel the lift for many seconds after the ship should rise again.
-        liftIntegral = Mathf.Clamp(liftIntegral + speedError * loadCompensation * Time.fixedDeltaTime, 0f, maxLoadCompensation);
-
-        float gravityCompensation = shipRigidbody.useGravity ? -Physics.gravity.y : 0f;
-        float dampingCompensation = shipRigidbody.linearDamping * verticalSpeed;
-        float acceleration = gravityCompensation + dampingCompensation + speedError * verticalResponsiveness + liftIntegral;
-        float totalLift = Mathf.Max(0f, shipRigidbody.mass * acceleration);
-
-        // Shift at most maxLiftImbalance of the lift to the stronger balloon. Putting all lift on one
-        // balloon (e.g. the other one damaged) creates far more torque than the ship can counter and flips it.
-        float strongest = Mathf.Max(leftEfficiency, rightEfficiency);
-        float imbalance = strongest > 0f ? (leftEfficiency - rightEfficiency) / strongest : 0f;
-        float leftShare = 0.5f + imbalance * maxLiftImbalance;
-
-        shipRigidbody.AddForceAtPosition(Vector3.up * (totalLift * leftShare), balloonLeft.position, ForceMode.Force);
-        shipRigidbody.AddForceAtPosition(Vector3.up * (totalLift * (1f - leftShare)), balloonRight.position, ForceMode.Force);
+        shipRigidbody.AddForce(Vector3.down * (verticalSpeed * verticalDrag * shipRigidbody.mass), ForceMode.Force);
 
         ApplyPlayerWeight();
+
+        _lastLiftTime = Time.time;
+        if (logLiftDebug && Time.time >= _nextLiftLog)
+        {
+            _nextLiftLog = Time.time + 1f;
+            Vector3 force = shipRigidbody.GetAccumulatedForce();
+            Debug.Log($"[ShipLift] eff L/R {leftEfficiency}/{rightEfficiency}, lift {totalLiftShare:F2}x weight, " +
+                      $"net force {force.y + shipWeight * (shipRigidbody.useGravity ? -1f : 0f):F1} N (mass {shipRigidbody.mass}), " +
+                      $"vel.y {shipRigidbody.linearVelocity.y:F2}, pos.y {shipRigidbody.position.y:F2}, " +
+                      $"kinematic {shipRigidbody.isKinematic}, constraints {shipRigidbody.constraints}, sleeping {shipRigidbody.IsSleeping()}", shipRigidbody);
+        }
+    }
+
+    private void Update()
+    {
+        if (!logLiftDebug || !IsSpawned || !IsServer || CurrentState.Value != GameState.Playing) return;
+        if (shipRigidbody != null && Time.time - _lastLiftTime > 1f && Time.time >= _nextLiftLog)
+        {
+            _nextLiftLog = Time.time + 1f;
+            Debug.LogWarning("[ShipLift] ApplyShipLift is not being called. Is BalloonBehaviour active and are its ovens assigned?", this);
+        }
     }
 
     /// <summary>
     /// Server only. Players move with a CharacterController and do not push rigidbodies, so their weight
-    /// is applied manually where they stand. The lift controller compensates the extra load, so players
-    /// only tilt the ship without making it sink.
+    /// is applied manually where they stand, so they tilt the ship and count against the balloon lift.
     /// </summary>
     private void ApplyPlayerWeight()
     {
@@ -123,6 +141,13 @@ public class GameManager : NetworkBehaviour
 
             shipRigidbody.AddForceAtPosition(Physics.gravity * playerMass, point, ForceMode.Force);
         }
+    }
+
+    private float GetLiftShare(float efficiency)
+    {
+        if (liftPerLevel == null || liftPerLevel.Length == 0) return 0f;
+        int level = Mathf.Clamp(Mathf.RoundToInt(efficiency), 0, liftPerLevel.Length - 1);
+        return liftPerLevel[level];
     }
 
     private bool TryGetShipGroundPoint(Transform player, out Vector3 point)

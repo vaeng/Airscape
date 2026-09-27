@@ -317,7 +317,7 @@ MonoBehaviour:
   explosionSFX: {fileID: 8300000, guid: 442b0f3d37248194f8ec7e69d895bd43, type: 3}
   damageSFX: {fileID: 8300000, guid: 04db296d0e67226418eeacf60fca6f65, type: 3}
   maxActive: 1
-  spawnInterval: 20
+  spawnInterval: 15
   repairDuration: 1.5
   spawnTimer: 0
 --- !u!1 &596192050214551729

@@ -27,6 +27,7 @@ public class PlayerNetworkBridge : NetworkBehaviour
             if (pi != null) pi.enabled = false;
 
             _movement.enabled = false;
+            IgnoreShipCollision();
             return;
         }
 
@@ -36,6 +37,20 @@ public class PlayerNetworkBridge : NetworkBehaviour
         if (GameManager.Instance != null &&
             GameManager.Instance.CurrentState.Value == GameState.Playing)
             _movement.StartPlaying();
+    }
+
+    /// <summary>
+    /// Remote players arrive slightly delayed. Their CharacterController blocks rigidbodies like a wall,
+    /// so the rising ship would get stuck on them. They move with the synced transform anyway.
+    /// </summary>
+    private void IgnoreShipCollision()
+    {
+        var cc = GetComponent<CharacterController>();
+        var ship = GameManager.Instance != null ? GameManager.Instance.ShipRigidbody : null;
+        if (cc == null || ship == null) return;
+
+        foreach (var col in ship.GetComponentsInChildren<Collider>(true))
+            Physics.IgnoreCollision(cc, col);
     }
 
     public override void OnNetworkDespawn()
