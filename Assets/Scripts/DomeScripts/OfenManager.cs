@@ -67,6 +67,10 @@ public class OfenManager : NetworkBehaviour
         {
             SetEfficiency(efficiency);
         }
+
+        if (repairSpawner == null) repairSpawner = FindNearestRepairSpawner();
+        if (repairSpawner == null)
+            Debug.LogWarning($"[Ofen] {name} has no Repair Spawner, so its balloon can never be damaged. Assign the RepairSpawner of its balloon.", this);
     }
 
     private void Update()
@@ -98,7 +102,7 @@ public class OfenManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        StartCoroutine(BurnMoneyVFX());
+        BurnMoneyClientRpc();
 
         moneyInsertedCount++;
         if (moneyInsertedCount < moneyPerEfficiencyLevel) return;
@@ -120,6 +124,23 @@ public class OfenManager : NetworkBehaviour
 
         CurrentEnergy -= energyConsumptionRate * deltaTime;
         return CurrentEnergy * Efficiency;
+    }
+
+    /// <summary>Fallback if none is assigned: the RepairSpawner closest to this oven belongs to its balloon.</summary>
+    private RepairSpawner FindNearestRepairSpawner()
+    {
+        RepairSpawner nearest = null;
+        float nearestDistance = float.MaxValue;
+        foreach (var spawner in FindObjectsByType<RepairSpawner>(FindObjectsSortMode.None))
+        {
+            float distance = (spawner.transform.position - transform.position).sqrMagnitude;
+            if (distance >= nearestDistance) continue;
+            nearestDistance = distance;
+            nearest = spawner;
+        }
+
+        if (nearest != null) Debug.Log($"[Ofen] {name} uses RepairSpawner of {nearest.name} (nearest, none assigned).", this);
+        return nearest;
     }
 
     /// <summary>Spawns one fire instance at every fire position (bottom and top).</summary>
@@ -162,6 +183,14 @@ public class OfenManager : NetworkBehaviour
     public void PlayMoneyBurnSFX()
     {
         moneyBurnSFX?.Play();
+    }
+
+    /// <summary>Plays the money burn smoke and sound on every client (including the host).</summary>
+    [ClientRpc]
+    private void BurnMoneyClientRpc()
+    {
+        PlayMoneyBurnSFX();
+        StartCoroutine(BurnMoneyVFX());
     }
 
     IEnumerator BurnMoneyVFX()

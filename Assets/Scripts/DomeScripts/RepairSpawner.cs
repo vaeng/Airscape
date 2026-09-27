@@ -103,6 +103,8 @@ public class RepairSpawner : NetworkBehaviour
     {
         // Only the first spawner runs the shared timer for all of them.
         if (!IsSpawned || !IsServer || AllSpawners.Count == 0 || AllSpawners[0] != this) return;
+        // No damage before the game started, the ship just hovers in the lobby.
+        if (GameManager.Instance == null || GameManager.Instance.CurrentState.Value != GameState.Playing) return;
 
         int totalActive = 0;
         foreach (var spawner in AllSpawners) totalActive += spawner.ActiveCount;
