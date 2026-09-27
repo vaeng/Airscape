@@ -56,6 +56,12 @@ public class PlayerSpawnManager : MonoBehaviour
         if (colour != null) colour.PlayerIndex.Value = spawnIndex;
     }
 
+    public Transform GetSpawnPoint(int index)
+    {
+        if (index < 0 || index >= _spawnPoints.Length) return null;
+        return _spawnPoints[index];
+    }
+
     // Reset the index when the session ends so the next host starts fresh.
     private void OnServerStopped(bool _) => _nextSpawnIndex = 0;
 }

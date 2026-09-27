@@ -33,7 +33,13 @@ public class PlayerMovement : MonoBehaviour
     private float _jumpBufferTimer;
     private bool _slamming;
 
-    public Ray InteractRay { get; private set; }
+    /// <summary>
+    /// The player's own camera once it has taken over from the scene camera, otherwise null.
+    /// </summary>
+    public Camera ActiveCamera => _isPlaying ? _playerCamera : null;
+
+    // Computed on demand so it never lags a frame behind the camera, regardless of script order.
+    public Ray InteractRay => new Ray(_cameraPoint.position, _cameraPoint.forward);
     public float InteractRange => _settings != null ? _settings.interactRange : 5f;
 
     private void Awake()
@@ -117,7 +123,6 @@ public class PlayerMovement : MonoBehaviour
         if (!_isPlaying) return;
 
         HandleLook();
-        InteractRay = new Ray(_cameraPoint.position, _cameraPoint.forward);
         HandleMovement();
     }
 

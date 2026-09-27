@@ -107,3 +107,7 @@ InitTestScene*.unity*
 
 # AI tooling
 /AI/
+ProjectSettings/Packages/com.unity.probuilder/Settings.json
+ProjectSettings/Packages/com.unity.services.vivox/Settings.json
+ProjectSettings/ShaderGraphSettings.asset
+.vsconfig

@@ -11,12 +11,12 @@ public class PlayerMovementSettings : ScriptableObject
     public float sprintSpeed = 20f;
 
     [Header("Jump")]
-    public float jumpForce = 15f;
-    public float coyoteTime = 0.12f;
-    public float jumpBufferTime = 0.15f;
+    public float jumpForce = 20f;
+    public float coyoteTime = 0.3f;
+    public float jumpBufferTime = 0.3f;
 
     [Header("Air Movement")]
-    public float airSpeedMax = 27f;
+    public float airSpeedMax = 20f;
 
     [Header("Gravity")]
     public float gravityScale = 2.99f;

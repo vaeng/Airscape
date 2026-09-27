@@ -17,6 +17,22 @@ public class PickupItem : NetworkBehaviour
     [SerializeField]
     private float _stuckDropTime = 0.5f;
 
+    // Impulse applied on a plain drop (charge = 0).
+    [SerializeField]
+    private float _dropForce = 4f;
+
+    // Impulse applied on a fully charged throw (charge = 1).
+    [SerializeField]
+    private float _maxThrowForce = 25f;
+
+    public float MaxThrowForce => _maxThrowForce;
+
+    /// <summary>
+    /// Impulse applied for the given throw charge (0 = plain drop, 1 = full throw).
+    /// </summary>
+    public float GetThrowForce(float throwCharge01) =>
+        Mathf.Lerp(_dropForce, _maxThrowForce, Mathf.Clamp01(throwCharge01));
+
     public NetworkVariable<ulong> HeldBy = new NetworkVariable<ulong>(
         ulong.MaxValue,
         NetworkVariableReadPermission.Everyone,
@@ -68,6 +84,14 @@ public class PickupItem : NetworkBehaviour
         _rb.isKinematic = held;
         _rb.interpolation = held ? RigidbodyInterpolation.None
                                  : RigidbodyInterpolation.Interpolate;
+
+        // Keep the local player's held-item state in sync with the server's authority.
+        var local = PlayerInteraction.Local;
+        if (local == null) return;
+
+        ulong me = NetworkManager.Singleton.LocalClientId;
+        if (current == me) local.ReceiveHeldItem(this);
+        else if (previous == me) local.ReleaseHeldItem(this);
     }
 
     private void LateUpdate()
@@ -87,7 +111,8 @@ public class PickupItem : NetworkBehaviour
 
         // RaycastAll so we can skip hits on the holder's own body before checking geometry.
         float rawTarget = _holdDistance;
-        var hits = Physics.RaycastAll(origin, forward, _holdDistance);
+        var hits = Physics.RaycastAll(origin, forward, _holdDistance,
+            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
         System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
         foreach (var h in hits)
@@ -130,9 +155,25 @@ public class PickupItem : NetworkBehaviour
     public void SetHeldRotationRpc(Quaternion rotation) => _heldRotation = rotation;
 
     [Rpc(SendTo.Server)]
-    public void PickUpRpc(ulong clientId)
+    public void PickUpRpc(ulong clientId) => ServerPickUp(clientId);
+
+    /// <summary>
+    /// World pose this item would have when held by the given player — safe to call on a prefab.
+    /// </summary>
+    public Pose GetHoldPose(Transform playerRoot)
     {
-        if (HeldBy.Value != ulong.MaxValue) return;
+        Transform camPoint = playerRoot.Find("CameraPoint");
+        if (camPoint == null) camPoint = playerRoot;
+
+        return new Pose(camPoint.position + camPoint.forward * _holdDistance, playerRoot.rotation);
+    }
+
+    /// <summary>
+    /// Server-only: attaches the item to the given client's player.
+    /// </summary>
+    public void ServerPickUp(ulong clientId)
+    {
+        if (!IsServer || HeldBy.Value != ulong.MaxValue) return;
 
         if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out var client)
             || client.PlayerObject == null) return;
@@ -145,8 +186,11 @@ public class PickupItem : NetworkBehaviour
         HeldBy.Value = clientId;
     }
 
+    /// <summary>
+    /// Releases the item. throwCharge01 = 0 is a plain drop, 1 is a full-strength throw.
+    /// </summary>
     [Rpc(SendTo.Server)]
-    public void DropRpc()
+    public void DropRpc(float throwCharge01)
     {
         if (HeldBy.Value == ulong.MaxValue) return;
 
@@ -157,6 +201,6 @@ public class PickupItem : NetworkBehaviour
         _heldRotation = Quaternion.identity;
         _stuckTimer = 0f;
         HeldBy.Value = ulong.MaxValue;
-        _rb.AddForce(throwDir * 4f, ForceMode.Impulse);
+        _rb.AddForce(throwDir * GetThrowForce(throwCharge01), ForceMode.Impulse);
     }
 }
