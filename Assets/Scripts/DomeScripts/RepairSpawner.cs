@@ -104,7 +104,12 @@ public class RepairSpawner : NetworkBehaviour
         // Only the first spawner runs the shared timer for all of them.
         if (!IsSpawned || !IsServer || AllSpawners.Count == 0 || AllSpawners[0] != this) return;
         // No damage before the game started, the ship just hovers in the lobby.
-        if (GameManager.Instance == null || GameManager.Instance.CurrentState.Value != GameState.Playing) return;
+        // The timer is held at 0 until then, so the first repair point needs the full interval after the start.
+        if (GameManager.Instance == null || GameManager.Instance.CurrentState.Value != GameState.Playing)
+        {
+            spawnTimer = 0f;
+            return;
+        }
 
         int totalActive = 0;
         foreach (var spawner in AllSpawners) totalActive += spawner.ActiveCount;

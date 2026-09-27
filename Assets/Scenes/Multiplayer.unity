@@ -4124,7 +4124,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4630109178907889129, guid: 5bf1c161ac6d24f4b9f4cfe48e0c039c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.7953081
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4630109178907889129, guid: 5bf1c161ac6d24f4b9f4cfe48e0c039c, type: 3}
       propertyPath: m_LocalPosition.z
@@ -14403,6 +14403,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   ShowTopMostFoldoutHeaderGroup: 1
+  ship: {fileID: 1874625668}
   currentCash: 1000000
   shipRigidbody: {fileID: 1053305712}
   balloonLeft: {fileID: 1160519104}
@@ -55438,6 +55439,11 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1874625668 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6812841143081436337, guid: 5bf1c161ac6d24f4b9f4cfe48e0c039c, type: 3}
+  m_PrefabInstance: {fileID: 383105362}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &1887524349
 Mesh:
   m_ObjectHideFlags: 0

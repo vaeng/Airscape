@@ -11,6 +11,7 @@ public enum GameState { Lobby, Playing }
 /// </summary>
 public class GameManager : NetworkBehaviour
 {
+    [SerializeField] private GameObject ship;
     public const int StartingCash = 1000000;
     [SerializeField] private int currentCash = StartingCash;
     [SerializeField] private Rigidbody shipRigidbody;
@@ -164,6 +165,10 @@ public class GameManager : NetworkBehaviour
         {
             _nextLiftLog = Time.time + 1f;
             Debug.LogWarning("[ShipLift] ApplyShipLift is not being called. Is BalloonBehaviour active and are its ovens assigned?", this);
+        }
+        if(ship.transform.position.y < -100f)
+        {
+            EndGameRpc(false);
         }
     }
 

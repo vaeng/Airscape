@@ -105,7 +105,10 @@ public class LobbyUI : MonoBehaviour
         Debug.Log($"[LobbyUI] Game ended, showing end screen. Won: {won}");
         Hide(_menuContainer);
         Show(_endScreenContainer);
-        if (_endScreenImage != null) _endScreenImage.sprite = won ? WonSprite : LostSprite;
+        // Fetch again: after SetActive(true), UIDocument rebuilds the visual tree and the old reference is stale
+        _endScreenImage = GetComponent<UIDocument>().rootVisualElement.Q<Image>("OverlayImage");
+        if (_endScreenImage != null)
+            _endScreenImage.style.backgroundImage = new StyleBackground(won ? WonSprite : LostSprite);
     }
 
     public void OnRestartClicked()

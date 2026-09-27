@@ -43,6 +43,10 @@ public class UIManager : MonoBehaviour
         BindCanvasToPlayerCamera();
         UpdateThrowChargeSlider();
         UpdateProgressSlider();
+        if(progressSlider.value == 1f)
+        {
+            GameManager.Instance.EndGameRpc(true);
+        }
     }
 
     private void UpdateProgressSlider()
