@@ -3,10 +3,19 @@ using Unity.Netcode;
 
 public class MoneyBehaviour : NetworkBehaviour
 {
+    [SerializeField] private AudioClip moneyPickupSFX;
+    [SerializeField] private AudioClip moneyDropSFX;
+    private AudioSource audioSource;
+
     [SerializeField] private int value = 1000;
     [SerializeField] private float energyAmount = 20f;
 
     public int Value => value;
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
 
@@ -18,7 +27,7 @@ public class MoneyBehaviour : NetworkBehaviour
         var ofenManager = collision.collider.gameObject.GetComponentInParent<OfenManager>();
         if (ofenManager == null)
         {
-            return;
+            audioSource.PlayOneShot(moneyDropSFX);
         }
         else
         {
@@ -27,9 +36,10 @@ public class MoneyBehaviour : NetworkBehaviour
             ofenManager.InsertMoney();
             Debug.Log($"Added {energyAmount} energy to the oven.");
             ReduceCashAmount();
+            NetworkObject.Despawn();
         }
 
-        NetworkObject.Despawn();
+        
     }
 
     public void ReduceCashAmount()
