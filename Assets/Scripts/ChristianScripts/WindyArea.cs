@@ -53,12 +53,10 @@ public class WindyArea : NetworkBehaviour
     {
         if(!IsServer) yield break;
         float duration = Random.Range(minWindDuration, maxWindDuration);
-        Debug.Log($"WindyArea: Wind will be active for {duration} seconds.");
         IsWindy.Value = true;
         yield return new WaitForSeconds(duration);
         IsWindy.Value = false;
         float interval = Random.Range(minWindInterval, maxWindInterval);
-        Debug.Log($"WindyArea: Wind will be inactive for {interval} seconds.");
         yield return new WaitForSeconds(interval);
         StartCoroutine(RandomWindStartUp());
     }
