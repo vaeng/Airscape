@@ -9,6 +9,7 @@ public class PlayerColour : NetworkBehaviour
 {
     [SerializeField] private Renderer _headRenderer;
     [SerializeField] private Material[] _materials; // index 0=Blue 1=Pink 2=Green 3=Yellow
+    public ParticleSystem respawnEffect;
 
     public NetworkVariable<int> PlayerIndex = new NetworkVariable<int>(
         -1,
@@ -34,7 +35,7 @@ public class PlayerColour : NetworkBehaviour
         if (current >= 0) Apply(current);
     }
 
-    private void Apply(int index)
+    public void Apply(int index)
     {
         Debug.Log($"[PlayerColour] Apply({index}) headRenderer={_headRenderer} matCount={_materials?.Length}");
         if (_headRenderer == null || index < 0 || index >= _materials.Length) return;
@@ -45,5 +46,13 @@ public class PlayerColour : NetworkBehaviour
         mats[2] = _materials[index];
         _headRenderer.SetMaterials(mats);
         Debug.Log($"[PlayerColour] Material set to {_materials[index].name}");
+    }
+
+    public void PlayRespawnEffect()
+    {
+        Debug.Log($"[PlayerColour] PlayRespawnEffect() respawnEffect={respawnEffect}");
+        Apply(PlayerIndex.Value);
+        if (respawnEffect != null)
+            respawnEffect.Play();
     }
 }
