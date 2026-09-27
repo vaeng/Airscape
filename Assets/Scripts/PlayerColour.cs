@@ -1,5 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// Assigns a head material colour to each player based on spawn index.
@@ -38,7 +39,10 @@ public class PlayerColour : NetworkBehaviour
         Debug.Log($"[PlayerColour] Apply({index}) headRenderer={_headRenderer} matCount={_materials?.Length}");
         if (_headRenderer == null || index < 0 || index >= _materials.Length) return;
         if (_materials[index] == null) return;
-        _headRenderer.material = _materials[index];
+        List<Material> mats = new();
+        _headRenderer.GetMaterials(mats);
+        mats[2] = _materials[index];
+        _headRenderer.SetMaterials(mats);
         Debug.Log($"[PlayerColour] Material set to {_materials[index].name}");
     }
 }

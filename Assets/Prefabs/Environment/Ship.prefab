@@ -1754,7 +1754,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2249295597
+  GlobalObjectIdHash: 239974495
   InScenePlacedSourceGlobalObjectIdHash: 505774873
   DeferredDespawnTick: 0
   Ownership: 1
@@ -2124,7 +2124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1563370574
+  GlobalObjectIdHash: 2255438859
   InScenePlacedSourceGlobalObjectIdHash: 505774873
   DeferredDespawnTick: 0
   Ownership: 1
@@ -3184,6 +3184,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4630109178907889129}
     m_Modifications:
+    - target: {fileID: 5410048845662207078, guid: 9f4155d9bec22b44083e67495fc93d55, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1611765071
+      objectReference: {fileID: 0}
     - target: {fileID: 7463935464476726290, guid: 9f4155d9bec22b44083e67495fc93d55, type: 3}
       propertyPath: m_Name
       value: Windzone Red Oven
@@ -3316,6 +3320,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4630109178907889129}
     m_Modifications:
+    - target: {fileID: 5410048845662207078, guid: 9f4155d9bec22b44083e67495fc93d55, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 355454756
+      objectReference: {fileID: 0}
     - target: {fileID: 7463935464476726290, guid: 9f4155d9bec22b44083e67495fc93d55, type: 3}
       propertyPath: m_Name
       value: Windzone Top Red
@@ -3388,7 +3396,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1879637893311537699, guid: f140db0309f888e4ba5e122603aa3f65, type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 3940903850
+      value: 204566712
       objectReference: {fileID: 0}
     - target: {fileID: 1879637893311537699, guid: f140db0309f888e4ba5e122603aa3f65, type: 3}
       propertyPath: InScenePlacedSourceGlobalObjectIdHash
@@ -3543,7 +3551,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1879637893311537699, guid: f140db0309f888e4ba5e122603aa3f65, type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 2655860510
+      value: 204928887
       objectReference: {fileID: 0}
     - target: {fileID: 1879637893311537699, guid: f140db0309f888e4ba5e122603aa3f65, type: 3}
       propertyPath: InScenePlacedSourceGlobalObjectIdHash
@@ -3630,6 +3638,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4630109178907889129}
     m_Modifications:
+    - target: {fileID: 5410048845662207078, guid: 9f4155d9bec22b44083e67495fc93d55, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 375864966
+      objectReference: {fileID: 0}
     - target: {fileID: 7463935464476726290, guid: 9f4155d9bec22b44083e67495fc93d55, type: 3}
       propertyPath: m_Name
       value: Windzone Green Oven
@@ -3770,6 +3782,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4630109178907889129}
     m_Modifications:
+    - target: {fileID: 5410048845662207078, guid: 9f4155d9bec22b44083e67495fc93d55, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 2615688926
+      objectReference: {fileID: 0}
     - target: {fileID: 7463935464476726290, guid: 9f4155d9bec22b44083e67495fc93d55, type: 3}
       propertyPath: m_Name
       value: Windzone Top Green
@@ -3822,6 +3838,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8324333656021914902, guid: 9f4155d9bec22b44083e67495fc93d55, type: 3}
+      propertyPath: IsWindy.m_InternalValue
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3842,7 +3862,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5410048845662207078, guid: 9f4155d9bec22b44083e67495fc93d55, type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 3774630109
+      value: 2636492909
       objectReference: {fileID: 0}
     - target: {fileID: 5410048845662207078, guid: 9f4155d9bec22b44083e67495fc93d55, type: 3}
       propertyPath: SceneMigrationSynchronization
