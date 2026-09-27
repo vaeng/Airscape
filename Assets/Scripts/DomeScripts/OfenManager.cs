@@ -11,6 +11,7 @@ public class OfenManager : NetworkBehaviour
     [SerializeField] private float currentEfficiency = 1f;
     [SerializeField] private int moneyInsertedCount;
     [SerializeField] private float decayTimer;
+    public float Efficiency => currentEfficiency;
 
     [Header("Settings")]
     [SerializeField] private float energyConsumptionRate = 5f;

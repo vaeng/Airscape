@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class BalloonBehaviour : MonoBehaviour
 {
+    [SerializeField] private int debugLiftForce;
     [SerializeField] private OfenManager leftOfen, rightOfen;
 
     [SerializeField] private float leftLiftForce;
@@ -15,6 +16,9 @@ public class BalloonBehaviour : MonoBehaviour
 
         leftLiftForce = leftOfen != null ? leftOfen.GetEnergy() : 0f;
         rightLiftForce = rightOfen != null ? rightOfen.GetEnergy() : 0f;
+
+        leftLiftForce = leftOfen.Efficiency == 1 ? debugLiftForce : leftLiftForce;
+        rightLiftForce = rightOfen.Efficiency == 1 ? debugLiftForce : rightLiftForce;
 
         GameManager.Instance.HandleShipPhysicsRPC(leftLiftForce, rightLiftForce);
         //Debug.Log("Trylift: L: " + leftLiftForce + ", R: " + rightLiftForce);
