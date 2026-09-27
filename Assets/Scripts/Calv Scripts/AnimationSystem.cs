@@ -9,6 +9,8 @@ public class AnimationSystem : MonoBehaviour
     [SerializeField] private TwoBoneIKConstraint leftHandIKConstraint, rightHandIKConstraint;
     [SerializeField] private float animationSpeed = 0.3f;
 
+    private Vector3 lastPos;
+
     //Debug
     [SerializeField] private Transform leftMoney, rightMoney;
     [SerializeField] private bool dosomething, isGrabbing = false;
@@ -46,9 +48,10 @@ public class AnimationSystem : MonoBehaviour
         }
 
         Release();
-    }   
+    }
 
 
+    // DEBUGGING PURPOSES ONLY
 
     //private void Update()
     //{
@@ -69,7 +72,6 @@ public class AnimationSystem : MonoBehaviour
 
     //    }
     //}
-
 
 
 
