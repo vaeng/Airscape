@@ -1,5 +1,67 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1303765127356383194
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8760341775425392056}
+  m_Layer: 0
+  m_Name: leftIKTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8760341775425392056
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1303765127356383194}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.55227363, y: 0.34044087, z: 0.3077543, w: -0.69597507}
+  m_LocalPosition: {x: -0.87, y: -0.06, z: -0.55}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 778512817820673755}
+  m_LocalEulerAnglesHint: {x: -214, y: 101, z: 104}
+--- !u!1 &3211747574002949613
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1971621861949454265}
+  m_Layer: 0
+  m_Name: rightIKTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1971621861949454265
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3211747574002949613}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.2451073, y: -0.6792334, z: -0.5658391, w: 0.39798316}
+  m_LocalPosition: {x: 0.7, y: 0, z: -0.34}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 778512817820673755}
+  m_LocalEulerAnglesHint: {x: -35, y: -93, z: -73}
 --- !u!1 &3549143228078808580
 GameObject:
   m_ObjectHideFlags: 0
@@ -36,6 +98,8 @@ Transform:
   m_LocalScale: {x: 1.2833213, y: 0.60100746, z: 0.89966357}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 8760341775425392056}
+  - {fileID: 1971621861949454265}
   - {fileID: 7252868566499324160}
   - {fileID: 301276103781355162}
   m_Father: {fileID: 0}
@@ -84,7 +148,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
