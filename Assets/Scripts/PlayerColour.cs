@@ -41,6 +41,7 @@ public class PlayerColour : NetworkBehaviour
         if (_materials[index] == null) return;
         List<Material> mats = new();
         _headRenderer.GetMaterials(mats);
+        if(mats.Count < 3) return;
         mats[2] = _materials[index];
         _headRenderer.SetMaterials(mats);
         Debug.Log($"[PlayerColour] Material set to {_materials[index].name}");
