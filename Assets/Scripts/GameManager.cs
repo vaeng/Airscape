@@ -13,6 +13,13 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private int currentCash = StartingCash;
     [SerializeField] private Rigidbody shipRigidbody;
     [SerializeField] private Transform balloonLeft, balloonRight;
+    [Tooltip("How quickly the ship reaches its target vertical speed (1/s).")]
+    [SerializeField, Min(0f)] private float verticalResponsiveness = 2f;
+    [Tooltip("How quickly extra lift builds up to carry additional load on deck (money, items).")]
+    [SerializeField, Min(0f)] private float loadCompensation = 3f;
+    [Tooltip("Maximum extra upward acceleration (m/s²) the load compensation may add. ~10 = extra load up to the ship's own mass.")]
+    [SerializeField, Min(0f)] private float maxLoadCompensation = 20f;
+    [SerializeField] private float liftIntegral;
 
     public NetworkVariable<int> CurrentCash = new(
         StartingCash,
@@ -58,16 +65,32 @@ public class GameManager : NetworkBehaviour
         CurrentCash.Value = Mathf.Max(0, CurrentCash.Value - amount);
     }
 
-    [Rpc(SendTo.Server)]
-    public void HandleShipPhysicsRPC(float leftBallLift, float rightBallLift, 
-        Vector3 position = default, Vector3 linearVelocity = default, Quaternion rotation = default, Vector3 angularVelocity = default)
+    /// <summary>
+    /// Server only, call from FixedUpdate. Applies balloon lift so the ship moves vertically at
+    /// <paramref name="targetVerticalSpeed"/> (negative = sinking). The lift is split between the
+    /// balloons by their efficiency and applied at each balloon, so a single working balloon pulls
+    /// its side up and tilts the ship.
+    /// </summary>
+    public void ApplyShipLift(float leftEfficiency, float rightEfficiency, float targetVerticalSpeed)
     {
-        if (!IsServer) return;
+        if (!IsServer || shipRigidbody == null) return;
 
-        // Debug.Log($"Lift RPC: {leftBallLift}, {rightBallLift}");
-        shipRigidbody.AddForceAtPosition(Vector3.up * leftBallLift, balloonLeft.position, ForceMode.Force);
-        shipRigidbody.AddForceAtPosition(Vector3.up * rightBallLift, balloonRight.position, ForceMode.Force);
+        float verticalSpeed = shipRigidbody.linearVelocity.y;
+        float speedError = targetVerticalSpeed - verticalSpeed;
 
+        // The integral builds up extra lift for loads the ship does not know about (money, items on deck).
+        liftIntegral = Mathf.Clamp(liftIntegral + speedError * loadCompensation * Time.fixedDeltaTime, -maxLoadCompensation, maxLoadCompensation);
+
+        float gravityCompensation = shipRigidbody.useGravity ? -Physics.gravity.y : 0f;
+        float dampingCompensation = shipRigidbody.linearDamping * verticalSpeed;
+        float acceleration = gravityCompensation + dampingCompensation + speedError * verticalResponsiveness + liftIntegral;
+        float totalLift = Mathf.Max(0f, shipRigidbody.mass * acceleration);
+
+        float efficiencySum = leftEfficiency + rightEfficiency;
+        float leftShare = efficiencySum > 0f ? leftEfficiency / efficiencySum : 0.5f;
+
+        shipRigidbody.AddForceAtPosition(Vector3.up * (totalLift * leftShare), balloonLeft.position, ForceMode.Force);
+        shipRigidbody.AddForceAtPosition(Vector3.up * (totalLift * (1f - leftShare)), balloonRight.position, ForceMode.Force);
     }
     #endregion
 }

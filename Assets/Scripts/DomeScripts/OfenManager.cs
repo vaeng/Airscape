@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using System.Collections;
 
 public class OfenManager : NetworkBehaviour
 {
@@ -11,7 +12,10 @@ public class OfenManager : NetworkBehaviour
     [SerializeField] private float currentEfficiency = 1f;
     [SerializeField] private int moneyInsertedCount;
     [SerializeField] private float decayTimer;
-    public float Efficiency => currentEfficiency;
+    /// <summary>Effective lift efficiency: 0 while the balloon is damaged, otherwise the efficiency level.</summary>
+    public float Efficiency => IsDamaged ? 0f : currentEfficiency;
+    /// <summary>True while at least one repair point of this oven's balloon is open.</summary>
+    public bool IsDamaged => repairSpawner != null && repairSpawner.ActiveCount > 0;
 
     [Header("Settings")]
     [SerializeField] private float energyConsumptionRate = 5f;
@@ -22,9 +26,9 @@ public class OfenManager : NetworkBehaviour
     [Tooltip("How many money items must be thrown in to raise the efficiency by one level.")]
     [SerializeField, Min(1)] private int moneyPerEfficiencyLevel = 1;
     [Tooltip("Seconds until the efficiency drops by one level. Resets whenever the level changes.")]
-    [SerializeField, Min(0.1f)] private float secondsPerEfficiencyLevel = 20f;
-    [Tooltip("Extra decay speed per active repair point. 1 = twice as fast with one active repair point.")]
-    [SerializeField, Min(0f)] private float extraDecayPerRepair = 1f;
+    [SerializeField, Min(0.1f)] private float secondsPerEfficiencyLevel = 30f;
+    [Tooltip("Seconds until the efficiency drops by one level while at least one repair point is open.")]
+    [SerializeField, Min(0.1f)] private float secondsPerEfficiencyLevelWhileRepairing = 10f;
 
     [Header("References")]
     [SerializeField] private Transform firePosition;
@@ -33,6 +37,7 @@ public class OfenManager : NetworkBehaviour
     [SerializeField] private GameObject fireVFXMedium;
     [SerializeField] private GameObject fireVFXLarge;
     [SerializeField] private RepairSpawner repairSpawner;
+    [SerializeField] private GameObject smokeVFX;
 
     [Header("Sounds")]
     [SerializeField] private AudioSource moneyBurnSFX;
@@ -68,9 +73,10 @@ public class OfenManager : NetworkBehaviour
     {
         if (IsSpawned && IsServer && networkEfficiency.Value > MinEfficiency)
         {
-            int activeRepairs = repairSpawner != null ? repairSpawner.ActiveCount : 0;
-            decayTimer += Time.deltaTime * (1f + activeRepairs * extraDecayPerRepair);
-            if (decayTimer >= secondsPerEfficiencyLevel)
+            float duration = IsDamaged ? secondsPerEfficiencyLevelWhileRepairing : secondsPerEfficiencyLevel;
+            // decayTimer is normalized (0..1) so switching duration mid-countdown keeps the progress
+            decayTimer += Time.deltaTime / duration;
+            if (decayTimer >= 1f)
             {
                 SetEfficiency(networkEfficiency.Value - 1);
             }
@@ -92,6 +98,8 @@ public class OfenManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
+        StartCoroutine(BurnMoneyVFX());
+
         moneyInsertedCount++;
         if (moneyInsertedCount < moneyPerEfficiencyLevel) return;
 
@@ -111,7 +119,7 @@ public class OfenManager : NetworkBehaviour
         if (deltaTime <= 0f) deltaTime = Time.deltaTime;
 
         CurrentEnergy -= energyConsumptionRate * deltaTime;
-        return CurrentEnergy * currentEfficiency;
+        return CurrentEnergy * Efficiency;
     }
 
     /// <summary>Spawns one fire instance at every fire position (bottom and top).</summary>
@@ -154,5 +162,27 @@ public class OfenManager : NetworkBehaviour
     public void PlayMoneyBurnSFX()
     {
         moneyBurnSFX?.Play();
+    }
+
+    IEnumerator BurnMoneyVFX()
+    {
+        var smoke = Instantiate(smokeVFX, firePosition.position, firePosition.rotation, firePosition);
+        smoke.SetActive(true);
+        yield return new WaitForSeconds(1f);
+        if (smoke == null) yield break;
+
+        // Stop emitting but let existing particles finish their lifetime before cleanup.
+        var particleSystems = smoke.GetComponentsInChildren<ParticleSystem>();
+        foreach (var ps in particleSystems)
+        {
+            ps.Stop(false, ParticleSystemStopBehavior.StopEmitting);
+        }
+
+        while (smoke != null && System.Array.Exists(particleSystems, ps => ps != null && ps.IsAlive(false)))
+        {
+            yield return null;
+        }
+
+        if (smoke != null) Destroy(smoke);
     }
 }
