@@ -247,16 +247,18 @@ public class PlayerMovement : MonoBehaviour
 
             _horizontalVelocity = Vector3.ClampMagnitude(_horizontalVelocity, _settings.airSpeedMax);
 
-            if (TryGetComponent<PlayerInteraction>(out PlayerInteraction interaction))
+
+        }
+        
+        if (TryGetComponent<PlayerInteraction>(out PlayerInteraction interaction))
+        {
+            if (_horizontalVelocity.magnitude > 0.1f)
             {
-                if (_horizontalVelocity.magnitude > 0f)
-                {
-                    interaction.StartMovementAnimationServerRpc();
-                }
-                else
-                {
-                    interaction.StopMovementAnimationServerRpc();
-                }
+                interaction.StartMovementAnimationServerRpc();
+            }
+            else
+            {
+                interaction.StopMovementAnimationServerRpc();
             }
         }
     }
