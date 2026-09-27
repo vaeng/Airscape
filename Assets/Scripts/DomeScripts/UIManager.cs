@@ -33,6 +33,13 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
+        // HUD stays hidden and idle until the game was started from the lobby.
+        bool isPlaying = GameManager.Instance != null && GameManager.Instance.IsSpawned
+                         && GameManager.Instance.CurrentState.Value == GameState.Playing;
+        if (hudCanvas != null && hudCanvas.enabled != isPlaying)
+            hudCanvas.enabled = isPlaying;
+        if (!isPlaying) return;
+
         BindCanvasToPlayerCamera();
         UpdateThrowChargeSlider();
         UpdateProgressSlider();
@@ -41,8 +48,6 @@ public class UIManager : MonoBehaviour
     private void UpdateProgressSlider()
     {
         if (progressSlider == null) return;
-        // Only fills while the game is running.
-        if (GameManager.Instance == null || GameManager.Instance.CurrentState.Value != GameState.Playing) return;
 
         progressTimer = Mathf.Min(progressTimer + Time.deltaTime, progressDuration);
         progressSlider.value = progressTimer / progressDuration;
