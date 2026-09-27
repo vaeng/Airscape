@@ -23,9 +23,12 @@ public class RepairSpawner : NetworkBehaviour
     [SerializeField, Min(0.1f)] private float spawnInterval = 10f;
     [Tooltip("Seconds the player has to hold Interact with money on a repair point.")]
     [SerializeField, Min(0f)] private float repairDuration = 1.5f;
+    [Tooltip("Seconds after the game started before the spawn timer starts running. Taken from the first spawned spawner.")]
+    [SerializeField, Min(0f)] private float startDelay = 30f;
 
     [Header("Runtime Variables")]
     [SerializeField] private float spawnTimer;
+    [SerializeField] private float playingTime;
 
     // Bit i is set when spawn point i is active (supports up to 64 spawn points).
     private readonly NetworkVariable<ulong> activeMask = new(0);
@@ -108,6 +111,14 @@ public class RepairSpawner : NetworkBehaviour
         if (GameManager.Instance == null || GameManager.Instance.CurrentState.Value != GameState.Playing)
         {
             spawnTimer = 0f;
+            playingTime = 0f;
+            return;
+        }
+
+        // Grace period after the start, the spawn timer only runs once it has passed.
+        if (playingTime < startDelay)
+        {
+            playingTime += Time.deltaTime;
             return;
         }
 
