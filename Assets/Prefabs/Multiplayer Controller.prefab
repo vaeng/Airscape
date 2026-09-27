@@ -510,14 +510,14 @@ MonoBehaviour:
   rightHandIK: {fileID: 2694776498839653209}
   leftHandRestPos: {fileID: 358023545491532540}
   rightHandRestPos: {fileID: 471309310196175984}
-  leftLeg: {fileID: 7203175571493801744}
-  rightLeg: {fileID: 7944474000735151239}
+  leftLeg: {fileID: 8165896701459541118}
+  rightLeg: {fileID: 5712042858959302150}
   leftShoulder: {fileID: 3951174328970932312}
   rightShoulder: {fileID: 8107173551559485107}
   leftHandIKConstraint: {fileID: 3720145227244838628}
   rightHandIKConstraint: {fileID: 8361510417713328071}
   handAnimationSpeed: 0.3
-  legAnimationSpeed: 1
+  legAnimationSpeed: 30
   legMaxAngle: 45
   leftMoney: {fileID: 0}
   rightMoney: {fileID: 0}
@@ -1314,19 +1314,19 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8187068127137191982, guid: f67384fbe58cd3147899b404caff2f41, type: 3}
   m_PrefabInstance: {fileID: 3985973768033230318}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &7203175571493801744 stripped
+--- !u!4 &5712042858959302150 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 6100077322500412158, guid: f67384fbe58cd3147899b404caff2f41, type: 3}
-  m_PrefabInstance: {fileID: 3985973768033230318}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &7944474000735151239 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6418041815567464809, guid: f67384fbe58cd3147899b404caff2f41, type: 3}
+  m_CorrespondingSourceObject: {fileID: 8652618516848325608, guid: f67384fbe58cd3147899b404caff2f41, type: 3}
   m_PrefabInstance: {fileID: 3985973768033230318}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &8107173551559485107 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5175605061534907229, guid: f67384fbe58cd3147899b404caff2f41, type: 3}
+  m_PrefabInstance: {fileID: 3985973768033230318}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8165896701459541118 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5044614104717914512, guid: f67384fbe58cd3147899b404caff2f41, type: 3}
   m_PrefabInstance: {fileID: 3985973768033230318}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &8361510417713328071 stripped

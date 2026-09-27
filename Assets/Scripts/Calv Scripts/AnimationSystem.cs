@@ -81,7 +81,7 @@ public class AnimationSystem : MonoBehaviour
         {
             float legAngle = Mathf.Sin(Time.time * legAnimationSpeed) * legMaxAngle;
             leftLeg.localRotation = Quaternion.Euler(legAngle, 0f, 0f);
-            rightLeg.localRotation = Quaternion.Euler(-legAngle, 0f, 0f);
+            rightLeg.localRotation = Quaternion.Euler(0f, 0f, legAngle);
         }
     }
 
