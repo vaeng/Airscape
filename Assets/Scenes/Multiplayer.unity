@@ -4560,12 +4560,12 @@ GameObject:
   - component: {fileID: 479040951}
   - component: {fileID: 479040950}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: SupportRed
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!65 &479040950
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4594,7 +4594,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 479040949}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -4653,7 +4653,7 @@ Transform:
   m_GameObject: {fileID: 479040949}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 70.1, y: -12.5, z: 76.1}
+  m_LocalPosition: {x: 70.1, y: -11.54, z: 76.1}
   m_LocalScale: {x: 30.502846, y: 20.35532, z: 19.61053}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -15857,12 +15857,12 @@ GameObject:
   - component: {fileID: 1068082590}
   - component: {fileID: 1068082589}
   m_Layer: 0
-  m_Name: Cube (1)
+  m_Name: SupportGreen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!65 &1068082589
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -15891,7 +15891,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1068082588}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -15950,7 +15950,7 @@ Transform:
   m_GameObject: {fileID: 1068082588}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 70.1, y: -12.48, z: 128.3}
+  m_LocalPosition: {x: 70.1, y: -11.7, z: 128.3}
   m_LocalScale: {x: 30.502846, y: 20.35532, z: 19.61053}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -91711,9 +91711,9 @@ SceneRoots:
   m_Roots:
   - {fileID: 953347886}
   - {fileID: 479040953}
+  - {fileID: 1068082592}
   - {fileID: 160346197}
   - {fileID: 2062530416}
-  - {fileID: 1068082592}
   - {fileID: 810519843}
   - {fileID: 43835904}
   - {fileID: 971321420}
