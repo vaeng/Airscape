@@ -5,8 +5,6 @@ public class KillZone : NetworkBehaviour
 {
     private void OnTriggerExit(Collider other)
     {
-        if (!IsServer) return;
-
         var pc = other.GetComponent<PlayerColour>();
         if (pc != null) {
             var id = pc.PlayerIndex.Value;
